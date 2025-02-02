@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.trnsprt.mapper.ShipDiaryMapper">
+	
+	<sql id="company">
+		<if test="cmpnyNm !=null and cmpnyNm !=''">
+			AND B.CMPNY_NM LIKE '%'||#{cmpnyNm}||'%'
+		</if>
+	</sql>
+
+<!-- 차량일지 SELECT 메소드 -->
+	<select id="selectVD" parameterType="hashMap" resultType="vehiclesDiaryVO">
+		SELECT
+			  VHCLE_DIARY_CD
+			, IC_CARD_NO
+			, STRT_PNT
+			, ARVL_PNT
+			, STRT_TIME
+			, ARVL_TIME
+			, ENTR_MANAGE_NO
+			, STODEL_SE
+		FROM 
+			VEHICLES_DIARY
+		WHERE 1=1
+			<choose>
+				<when test="searchWord =='VHCLE_DIARY_CD'">
+					AND VHCLE_DIARY_CD = #{inputVal}
+				</when>
+				<when test="searchWord =='ENTR_MANAGE_NO'">
+					AND ENTR_MANAGE_NO = #{inputVal}
+				</when>
+				<when test="searchWord =='IC_CARD_NO'">
+					AND IC_CARD_NO = #{inputVal}
+				</when>
+				<when test="searchWord =='STRT_PNT'">
+					AND STRT_PNT LIKE '%'||#{inputVal}||'%'
+				</when>
+				<when test="searchWord =='ARVL_PNT'">
+					AND ARVL_PNT LIKE '%'||#{inputVal}||'%'
+				</when>
+			</choose>
+	        <if test="stodelSe != null and stodelSe != ''">
+	        	AND 
+	        		STODEL_SE = #{stodelSe}
+	        </if>
+		ORDER BY ARVL_TIME DESC
+	</select>
+
+<!-- IC카드 상세정보 SELECT메소드 -->
+	<select id="icInfoSel" parameterType="hashMap" resultType="icCardVO">
+		SELECT 
+		      A.VALID_BEGIN_DE
+		    , A.VALID_END_DE
+		    , B.DRVER_NM
+		    , B.TELNO
+		    , C.VHCLE_NO
+		    , C.MDL_NM
+		    , C.LDADNG_VL
+		    , C.LDADNG_WT
+		FROM 
+		    IC_CARD A
+		JOIN 
+		    VEHICLES_DRIVER B ON A.DRVER_CD = B.DRVER_CD
+		JOIN
+		    VEHICLES_INFORMATION C ON A.VHCLE_CD = C.VHCLE_CD
+		WHERE
+		    A.IC_CARD_NO = #{icCardNo}
+	</select>
+	
+	<resultMap type="shipDiaryDetailVO" id="SDDMap">
+		<result property="shipNm" column="SHIP_NM"/>
+		<result property="cbstrDate" column="CBSTR_DATE"/>
+		<result property="clsgn" column="CLSGN"/>
+		<result property="grtg" column="GRTG"/>
+		<result property="shipLt" column="SHIP_LT"/>
+		<collection property="SCList" resultMap="conMap"></collection>
+	</resultMap>
+	<resultMap type="containerVO" id="conMap">
+		<result property="cntanrInnb" column="CNTANR_INNB"/>
+		<result property="cntanrStndrd" column="CNTANR_STNDRD"/>
+		<result property="cntanrMtrqlt" column="CNTANR_MTRQLT"/>
+	</resultMap>
+	<select id="shipInfoSel" parameterType="hashMap" resultMap="SDDMap">
+		SELECT
+		      A.SHIP_NM
+		    , A.CBSTR_DATE
+		    , A.CLSGN
+		    , A.GRTG
+		    , A.SHIP_LT
+		    , C.CNTANR_INNB
+		    , C.CNTANR_STNDRD
+		    , C.CNTANR_MTRQLT
+		FROM 
+		    SHIP_INFORMATION A
+		JOIN
+		    SHIP_CONTAINER B ON A.IMO_NO = B.IMO_NO
+		JOIN
+		    CONTAINER C ON B.CNTANR_INNB = C.CNTANR_INNB
+		WHERE A.IMO_NO = #{imoNo}
+	</select>
+
+<!-- 선박 정보 SELECT 메소드 -->
+	<select id="shipInfo" parameterType="hashMap" resultType="diaryShipInfoVO">
+		SELECT 
+    		A.IMO_NO, A.SHIP_NM, B.CMPNY_NM
+		FROM 
+			  SHIP_INFORMATION A
+			, TRANSPORTATION_COMPANY B
+		WHERE 
+			1 = 1 
+		AND
+			A.CMPNY_CD=B.CMPNY_CD
+			<include refid="company"/>
+	</select>
+
+<!-- 선박일지 SELECT 메소드 -->
+	<select id="SelShipDiary" resultType="shipDiaryVO">
+		SELECT
+			  SHIP_DIARY_CD
+			, START_PRT
+			, ARVL_PRT
+			, SHIP_DEST
+			, SHIP_START_DE
+			, SHIP_NM
+			, BL_NO
+			, IMO_NO
+			, SHIP_END_DE
+		FROM SHIP_DIARY
+		WHERE 1=1
+			<choose>
+				<when test="searchShipWord =='BL_NO'">
+					AND BL_NO = #{inputVal}
+				</when>
+				<when test="searchShipWord =='IMO_NO'">
+					AND IMO_NO = #{inputVal}
+				</when>
+				<when test="searchShipWord =='START_PRT'">
+					AND START_PRT LIKE '%'||#{inputVal}||'%'
+				</when>
+				<when test="searchShipWord =='ARVL_PRT'">
+					AND ARVL_PRT LIKE '%'||#{inputVal}||'%'
+				</when>
+			</choose>
+	        <choose>
+	        	<when test="shipDateWord == 'START'">
+	        		AND SHIP_START_DE >= TO_DATE(#{strtTime},'YYYY-MM-DD') + 0.99999
+	        	</when>
+	        	<when test="shipDateWord == 'END'">
+	        		AND SHIP_END_DE >= TO_DATE(#{arvlTime},'YYYY-MM-DD') + 0.99999
+	        	</when>
+	        	<when test="shipDateWord == 'BETWEEN'">
+	        		AND SHIP_START_DE >= TO_DATE(#{strtTime},'YYYY-MM-DD') AND TO_DATE(#{arvlTime},'YYYY-MM-DD') >= SHIP_END_DE +0.99999
+	        	</when>
+	        </choose>
+		ORDER BY SHIP_END_DE DESC
+	</select>
+	
+<!-- 선박 컨테이너 정보 SEELCT 메소드 -->
+	<select id="selShipContain" parameterType="hashMap" resultType="shipContainerVO">
+		SELECT
+      		  A.IMO_NO
+    		, A.CNTANR_INNB
+    		, C.CNTANR_STNDRD
+    		, C.CNTANR_MTRQLT
+		FROM 
+		    SHIP_CONTAINER A, SHIP_DIARY B, CONTAINER C
+		WHERE 1=1
+			AND
+			    A.IMO_NO = B.IMO_NO
+			AND 
+			    A.CNTANR_INNB = C.CNTANR_INNB
+			AND
+			    B.IMO_NO =  #{imoNo}
+			<if test="cntanrStndrd != null and cntanrStndrd != '' and cntanrZero != null and cntanrZero != ''  != null and cntanrStndrd != '' ">
+			AND
+	    		C.CNTANR_STNDRD BETWEEN #{cntanrZero} AND #{cntanrStndrd}
+			</if>
+			<if test="cntanrInnb != null and cntanrInnb != '' ">
+			AND
+				A.CNTANR_INNB = #{cntanrInnb}
+			</if>
+			<if test="cntanrMtrqlt != null and cntanrMtrqlt != '' ">
+			AND
+			    C.CNTANR_MTRQLT LIKE '%'||#{cntanrMtrqlt}||'%'	
+			</if>
+	</select>
+	
+	<!-- 선박 일지 Insert 메소드 -->
+	<insert id="insertSD" parameterType="shipDiaryVO">
+		INSERT INTO SHIP_DIARY
+			(
+				  SHIP_DIARY_CD
+				, START_PRT
+				, ARVL_PRT
+				, SHIP_DEST
+				, SHIP_START_DE
+				, SHIP_NM
+				, BL_NO
+				, IMO_NO
+				, SHIP_END_DE
+			)
+		VALUES
+			(
+				'SHDI'||TO_CHAR(SHDI01001.NEXTVAL,'FM00000')
+				,#{startPrt}
+				,#{arvlPrt}
+				,#{shipDest}
+				,TO_DATE(#{shipStartDe},'YYYY-MM-DD HH24:MI:SS')
+				,#{shipNm}
+				,#{blNo}
+				,#{imoNo}
+				,TO_DATE(#{shipEndDe},'YYYY-MM-DD HH24:MI:SS')
+			)
+	</insert>
+</mapper>

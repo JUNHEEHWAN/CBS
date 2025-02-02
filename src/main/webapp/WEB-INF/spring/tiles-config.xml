@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC 
+"-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<!-- tiles 설정 -->
+<tiles-definitions>
+	<!-- 메인화면 layout 시작 /////////////-->
+	<!-- <definition name="main-layout" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/aside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="*" extends="main-layout">
+		<put-attribute name="body" value="/WEB-INF/views/{1}.jsp" />
+	</definition>
+	<definition name="main-layout2" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/aside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="*/*" extends="main-layout2">
+		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}.jsp" />
+	</definition> -->
+	<!-- 메인화면 layout 끝 /////////////// -->
+	
+	<!-- 시스템관리자 main layout 시작//////////////////// -->
+	<definition name="adminTiles-layout1" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/adminAside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="admin/*" extends="adminTiles-layout1">
+		<put-attribute name="body" value="/WEB-INF/views/admin/{1}.jsp" />
+	</definition>
+	<!-- 시스템관리자 main layout 끝//////////////////// -->
+	
+	<!-- 관세사 main layout 시작//////////////// -->
+	<definition name="cstbrkrTiles-layout1" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/cstbrkrAside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="cstbrkr/*/*" extends="cstbrkrTiles-layout1">
+		<put-attribute name="body" value="/WEB-INF/views/cstbrkr/{1}/{2}.jsp" />
+	</definition>
+	<!-- 관세사 main layout 끝//////////////// -->
+
+	<!-- 관세사2 main layout 시작//////////////// -->
+	<definition name="cstbrkrTiles-layout2" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/cstbrkrAside.jsp" />
+		<put-attribute name="body" value="" />
+		
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="cstbrkr/*" extends="cstbrkrTiles-layout2">
+		<put-attribute name="body" value="/WEB-INF/views/cstbrkr/{1}.jsp" />
+	</definition>
+	<!-- 관세사2 main layout 끝//////////////// -->
+
+	<!-- 공무원 main layout 시작//////////////// -->
+	<definition name="pbsvntTiles-layout1" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/pbsvntAside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="pbsvnt/*/*" extends="pbsvntTiles-layout1">
+		<put-attribute name="body" value="/WEB-INF/views/pbsvnt/{1}/{2}.jsp" />
+	</definition>
+	<!-- 공무원 main layout 끝//////////////// -->
+	<!-- 공무원2 main layout 시작//////////////// -->
+	<definition name="pbsvnTiles-layout2" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/pbsvntAside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="pbsvnt/*" extends="pbsvnTiles-layout2">
+		<put-attribute name="body" value="/WEB-INF/views/pbsvnt/{1}.jsp" />
+	</definition>
+	<!-- 공무원2 main layout 끝//////////////// -->
+
+	<!-- 운송  main layout 시작//////////////// -->
+	<definition name="trnsprtTiles-layout1" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/trnsprtAside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="trnsprt/*/*" extends="trnsprtTiles-layout1">
+		<put-attribute name="body" value="/WEB-INF/views/trnsprt/{1}/{2}.jsp" />
+	</definition>
+	<!-- 운송  main layout 시작//////////////// -->
+	<!-- 운송2  main layout 시작//////////////// -->
+	<definition name="trnsprtTiles-layout2" template="/WEB-INF/views/tiles/index.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/views/tiles/trnsprtAside.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp" />
+	</definition>
+	<definition name="trnsprt/*" extends="trnsprtTiles-layout2">
+		<put-attribute name="body" value="/WEB-INF/views/trnsprt/{1}.jsp" />
+	</definition>
+	<!-- 운송2 main layout 끝//////////////// -->
+	
+	
+	
+</tiles-definitions>

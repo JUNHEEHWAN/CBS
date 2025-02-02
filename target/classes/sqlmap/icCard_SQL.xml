@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.trnsprt.mapper.IcCardMapper">
+	
+	<insert id="insertIcCard" parameterType="icCardVO">
+		INSERT INTO IC_CARD
+		(
+			  IC_CARD_NO
+			, VALID_BEGIN_DE
+			, VALID_END_DE
+			, VHCLE_CD
+			, DRVER_CD
+		)
+		VALUES
+		(
+			 #{icCardNo}
+			,#{validBeginDe}
+			,#{validEndDe}
+			,#{vhcleCd}
+			,#{drverCd}
+		)
+	</insert>
+	
+	<select id="selectIcCard" parameterType="hashMap" resultType="icCardVO">
+		SELECT 
+		    A.IC_CARD_NO
+		    ,A.VALID_BEGIN_DE
+		    ,A.VHCLE_CD
+		    ,A.DRVER_CD
+		    ,B.DRVER_NM
+		    ,C.MDL_NM
+		FROM 
+		    IC_CARD A 
+		INNER JOIN 
+			VEHICLES_DRIVER B 
+		ON 
+			A.DRVER_CD = B.DRVER_CD
+		INNER JOIN 
+    		VEHICLES_INFORMATION C 
+		ON 
+    		A.VHCLE_CD = C.VHCLE_CD
+		WHERE 1=1
+		<if test="icCardNo != null and icCardNo != '' ">
+			AND IC_CARD_NO LIKE '%'||#{icCardNo}||'%'           
+		</if>
+		<if test="drverNm != null and drverNm != '' ">
+			AND DRVER_NM LIKE '%'||#{drverNm}||'%'
+		</if>                                         
+		<if test="mdlNm != null and mdlNm != '' ">    
+			AND MDL_NM LIKE '%'||#{mdlNm}||'%'                  
+		</if>                                         
+	</select>
+	
+	<select id="selComInfo" parameterType="hashMap" resultType="trnsprtCompanyVO">
+		SELECT
+			CMPNY_CD, TRNSPRT_GU, CMPNY_NM, CMPNY_ADRES, CMPNY_TELNO, RPRSNTV_NM, BIZRNO
+		FROM TRANSPORTATION_COMPANY
+		WHERE TRNSPRT_GU = 1
+			<choose>
+				<when test="searchCompWord == 'CMPNY_CD'">
+					AND CMPNY_CD LIKE '%'||#{searchCompText}||'%'
+				</when>
+				<when test="searchCompWord == 'CMPNY_NM'">
+					AND CMPNY_NM LIKE '%'||#{searchCompText}||'%'
+				</when>
+				<when test="searchCompWord == 'CMPNY_TELNO'">
+					AND CMPNY_TELNO = #{searchCompText}
+				</when>
+				<when test="searchCompWord == 'RPRSNTV_NM'">
+					AND RPRSNTV_NM LIKE '%'||#{searchCompText}||'%'
+				</when>
+				<otherwise>
+					AND 1=1
+				</otherwise>
+			</choose>
+	</select>
+	
+	<select id="selVehiInfo" parameterType="hashMap" resultType="vehiclesInformationVO">
+		SELECT
+			VHCLE_CD, VHCLE_CMPNY_CD, VHCLE_NO, MDL_NM, LDADNG_VL, LDADNG_WT, LDADNG_LT, LDADNG_HG
+		FROM VEHICLES_INFORMATION
+			<choose>
+				<when test="searchVehiWord == 'VHCLE_CD'">
+					WHERE VHCLE_CMPNY_CD = #{cmpnyCd} AND VHCLE_CD LIKE '%'||#{searchVehiText}||'%'
+				</when>
+				<when test="searchVehiWord == 'VHCLE_NO'">
+					WHERE VHCLE_CMPNY_CD = #{cmpnyCd} AND VHCLE_NO LIKE '%'||#{searchVehiText}||'%'
+				</when>
+				<when test="searchVehiWord == 'MDL_NM'">
+					WHERE VHCLE_CMPNY_CD = #{cmpnyCd} AND MDL_NM LIKE '%'||#{searchVehiText}||'%'
+				</when>
+				<when test="searchVehiWord == 'LDADNG_WT'">
+					WHERE VHCLE_CMPNY_CD = #{cmpnyCd} AND LDADNG_WT LIKE '%'||#{searchVehiText}||'%'
+				</when>
+				<otherwise>
+					WHERE 1=1 
+				</otherwise>
+			</choose>
+	</select>
+
+	<select id="selDiriverInfo" parameterType="hashMap" resultType="vehiclesDriverVO">
+		SELECT
+			DRVER_CD, VHCLE_CMPNY_CD, DRVER_NM, DRVER_SE, TELNO, ENCPN, DRVER_ADRES, IHIDNUM
+		FROM VEHICLES_DRIVER
+			<choose>
+			<when test="searchDriverWord == 'DRVER_NM'">
+					WHERE VHCLE_CMPNY_CD = #{cmpnyCd} AND DRVER_NM LIKE '%'||#{searchDriverText}||'%'
+				</when>
+				<when test="searchDriverWord == 'TELNO'">
+					WHERE VHCLE_CMPNY_CD = #{cmpnyCd} AND TELNO = '%'||#{searchDriverText}||'%'
+				</when>
+				<otherwise>
+					WHERE 1=1
+				</otherwise>
+			</choose>
+	</select>
+	
+	<select id="selVehiInfoDetail" parameterType="string" resultType="vehiclesInformationVO">
+		SELECT
+			VHCLE_CD, VHCLE_CMPNY_CD, VHCLE_NO, MDL_NM, LDADNG_VL, LDADNG_WT, LDADNG_LT, LDADNG_HG
+		FROM VEHICLES_INFORMATION
+		WHERE VHCLE_CMPNY_CD = #{cmpnyCd}
+	</select>
+
+	<select id="selVehiDriverDetail" parameterType="string" resultType="vehiclesDriverVO">
+		SELECT
+			DRVER_CD, VHCLE_CMPNY_CD, DRVER_NM, DRVER_SE, TELNO, ENCPN, DRVER_ADRES, IHIDNUM
+		FROM VEHICLES_DRIVER
+		WHERE VHCLE_CMPNY_CD = #{cmpnyCd}
+	</select>
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.pbsvnt.bounded.mapper.BoundedMapper">
+	
+	<!-- 입고 요청 목록  -->
+	<select id="getReqList" resultType="boundedReqVO">
+		SELECT A.ENTR_MANAGE_NO, A.GOODS_NO, B.ENTRPRS_NM, A.WRHOUSNG_REQUST_DE, C.WRHOUSNG_DE
+		FROM QUARANTINE_THING A FULL OUTER JOIN CUSTOMER B 
+		     ON A.CSTMR_CD = B.CSTMR_CD FULL OUTER JOIN USE_BOUNDED_WAREHOUSE C 
+		     ON A.ENTR_MANAGE_NO = C.ENTR_MANAGE_NO
+	</select>
+	
+	<!-- 입고 등록 (사용 보세 창고 TABLE INSERT) -->
+	<insert id="insUseBounded" parameterType="boundedReqVO">
+		INSERT INTO USE_BOUNDED_WAREHOUSE (BNDWAS_CD, ENTR_MANAGE_NO, GOODS_NO, CSTMR_CD, WRHOUSNG_DE)
+		SELECT #{bndwasCd}, ENTR_MANAGE_NO, GOODS_NO, CSTMR_CD, SYSDATE
+		FROM QUARANTINE_THING
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</insert>
+	
+	<!-- 창고 구역 불러오기 -->
+	<select id="getZone" resultType="boundedWarehouseVO">
+		SELECT DISTINCT BNDWAS_ZONE
+		FROM BOUNDED_WAREHOUSE
+		ORDER BY BNDWAS_ZONE
+	</select>
+	
+	<!-- 창고 번호 불러오기 
+	<select id="getNo" resultType="boundedWarehouseVO">
+		SELECT DISTINCT BNDWAS_NO
+		FROM BOUNDED_WAREHOUSE
+		ORDER BY BNDWAS_NO
+	</select> -->
+	
+	<!-- 창고 구역 선택 후 목록 -->
+	<select id="useBoundedList" parameterType="String" resultType="useBoundedWarehouseVO">
+		SELECT A.GOODS_NO, B.HS_CD, A.WRHOUSNG_DE, A.DLIVY_DE
+		FROM USE_BOUNDED_WAREHOUSE A JOIN GOODS B ON A.GOODS_NO = B.GOODS_NO
+		WHERE A.BNDWAS_CD = #{bndwasCd}
+	</select>
+</mapper>

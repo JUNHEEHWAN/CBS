@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.admin.mapper.AdminMapper">
+
+	<sql id="public">
+		<if test="keyword !=null and keyword !=''">
+			AND (
+				PBSVNT_JOB_CD = #{keyword}
+			OR USER_NM LIKE '%' || #{keyword} || '%'
+			
+			)
+		</if>
+	</sql>
+	<sql id="broker">
+		<if test="keyword !=null and keyword !=''">
+			AND (
+				USER_NM LIKE '%' || #{keyword} || '%'
+			OR	CONFM_AT = #{keyword}
+			)
+		</if>
+	</sql>
+	<sql id="broker1">
+		<if test="keyword !=null and keyword !=''">
+			AND A.CSTMR_CD LIKE '%' || #{keyword} || '%'
+		</if>
+	</sql>
+	
+
+	<resultMap type="userVO" id="userMap">
+		<result property="userCd" column="USER_CD"/>
+		<result property="password" column="PASSWORD"/>
+		<result property="userNm" column="USER_NM"/>
+		<result property="clsf" column="CLSF"/>
+		<result property="ihidnum" column="IHIDNUM"/>
+		<result property="encpn" column="ENCPN"/>
+		<result property="emailAdres" column="EMAIL_ADRES"/>
+		<result property="telno" column="TELNO"/>
+		<result property="adres" column="ADRES"/>
+		<result property="detailAdres" column="DETAIL_ADRES"/>
+		<result property="userSe" column="USER_SE"/>
+		
+		<association property="customsBrokerVO" resultMap="customsBrokerMap"></association>
+		<association property="publicServantVO" resultMap="publicServantMap"></association>
+	</resultMap>
+	
+	<resultMap type="CustomsBrokerVO" id="customsBrokerMap">
+		<result property="cstbrkrCd" column="CSTBRKR_CD"/>
+		<result property="qualfAcqsDe" column="QUALF_ACQS_DE"/>
+		<result property="lastAcdmcr" column="LAST_ACDMCR"/>
+		<result property="confmAt" column="CONFM_AT"/>
+		<result property="qualfNo" column="QUALF_NO"/>
+		<result property="profileFile" column="PROFILE_FILE"/>
+	</resultMap>
+	
+	<resultMap type="PublicServantVO" id="publicServantMap">
+		<result property="pbsvntCd" column="PBSVNT_CD"/>
+		<result property="pbsvntJobCd" column="PBSVNT_JOB_CD"/>
+	</resultMap>
+	
+	<resultMap type="ChargeCustomerVO" id="chargeCustomerMap">
+	
+		<result property="charger" column="CHARGER"/>
+		<result property="cstmrCd" column="CSTMR_CD"/>
+		<result property="entrprsNm" column="ENTRPRS_NM"/>
+		<result property="bizrno" column="BIZRNO"/>
+		<result property="ectmrk" column="ECTMRK"/>
+		<result property="mfrcRealmSe" column="MFRC_REALM_SE"/>
+		<result property="bsnAt" column="BSN_AT"/>
+		<result property="crmnlHist" column="CRMNL_HIST"/>
+		<result property="taxNpymHist" column="TAX_NPYM_HIST"/>
+		<result property="processSttus" column="PROCESS_STTUS"/>
+		<result property="reprsntAdres" column="REPRSNT_ADRES"/>
+		<result property="reprsntTelno" column="REPRSNT_TELNO"/>
+		<result property="reprsntEmail" column="REPRSNT_EMAIL"/>
+	
+		<result property="cstbrkrCd" column="CSTBRKR_CD"/>
+		
+		<result property="cprCstmrCd" column="CPR_CSTMR_CD"/>
+		<result property="cprNo" column="CPR_NO"/>
+		<result property="scaleSe" column="SCALE_SE"/>
+		<association property="userVO" resultMap="userMap"></association>
+	</resultMap>
+	
+	<!-- 관세사 검색 및 조회 메소드 -->
+	<select id="getList" parameterType="hashMap" resultMap="userMap">
+		WITH T AS( 
+    			SELECT A.USER_CD, A.PASSWORD, A.USER_NM, A.CLSF, A.IHIDNUM, A.ENCPN, A.EMAIL_ADRES,
+                       A.TELNO, A.ADRES, A.USER_SE , A.DETAIL_ADRES, B.CSTBRKR_CD, B.QUALF_ACQS_DE, B.LAST_ACDMCR, B.CONFM_AT, 
+                       B.QUALF_NO, B.PROFILE_FILE FROM 
+                       USERR A INNER JOIN CUSTOMS_BROKER B ON(A.USER_CD = B.CSTBRKR_CD) WHERE A.USER_SE = 'UUS2' 
+		<include refid="broker"></include> ORDER BY A.ENCPN DESC
+		)
+		SELECT T2.* FROM (SELECT ROWNUM RNUM, T.* FROM T) T2   
+		WHERE T2.RNUM BETWEEN (#{currentPage}*10) - (10 - 1) AND (#{currentPage}*10)
+	</select>
+	
+	<!-- 공무원 검색 및 조회 메소드 -->
+	<select id="pbList" parameterType="hashMap" resultMap="userMap">
+		WITH T AS(
+			SELECT A.USER_CD
+			, A.PASSWORD
+			, A.USER_NM
+			, A.CLSF
+			, A.IHIDNUM
+			, A.ENCPN
+			, A.EMAIL_ADRES
+			, A.TELNO
+			, A.ADRES
+			, A.USER_SE
+		    , B.PBSVNT_CD
+		    , B.PBSVNT_JOB_CD
+		FROM USERR A INNER JOIN PUBLIC_SERVANT B ON(A.USER_CD = B.PBSVNT_CD)WHERE  A.USER_SE = 'UUS3'
+		<include refid="public"></include> ORDER BY A.USER_NM
+		)
+		SELECT T2.* FROM (SELECT ROWNUM RNUM, T.* FROM T) T2   
+		WHERE T2.RNUM BETWEEN (#{currentPage}*10) - (10 - 1) AND (#{currentPage}*10)
+	</select>
+	
+	<!-- 공무원 검색 페이지 네이션 -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*) 
+		FROM PUBLIC_SERVANT A
+		INNER JOIN
+		USERR B
+		ON A.PBSVNT_CD = B.USER_CD 
+		WHERE 1 = 1
+		<include refid="public"></include>
+		
+	</select>
+	
+	<!-- 관세사 검색 페이지 네이션 -->
+	<select id="getTotal2" parameterType="hashMap" resultType="int">
+		SELECT COUNT (*)
+		FROM CUSTOMS_BROKER A
+		INNER JOIN
+		USERR B
+		ON A.CSTBRKR_CD = B.USER_CD   
+		WHERE 1 = 1
+		<include refid="broker"></include>
+	</select>
+	
+	
+	<!-- 고객관리 검색 페이지 네이션 -->
+	<select id="getTotal3" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM CHARGE_CUSTOMER A
+		FULL OUTER JOIN 
+		    CUSTOMER B 
+		ON A.CSTMR_CD = B.CSTMR_CD
+		FULL OUTER JOIN 
+		    LEGAL_PERSON C    
+		ON B.CSTMR_CD = C.CPR_CSTMR_CD
+		FULL OUTER JOIN 
+		    USERR D    
+		ON A.CSTBRKR_CD = D.USER_CD
+		WHERE 
+		    1=1
+		   <if test="keyword!=null and keyword!=''">
+			   <if test="searchList==''">
+			   AND (
+				    B.CSTMR_CD LIKE '%' || #{keyword} || '%'
+				    OR B.ENTRPRS_NM LIKE '%' || #{keyword} || '%'
+				    OR B.ECTMRK LIKE '%' || #{keyword} || '%'
+				    OR B.BIZRNO LIKE '%' || #{keyword} || '%'
+				    OR C.CPR_NO LIKE '%' || #{keyword} || '%'
+				    OR D.USER_NM LIKE '%' || #{keyword} || '%'
+				)
+				</if>
+				<if test="searchList!=''">
+				AND	${searchList} LIKE '%' || #{keyword} || '%'
+				</if>
+			</if>
+			<if test="kwScaleSe!=null and kwScaleSe!=''">
+			AND B.SCALE_SE LIKE '%' || #{kwScaleSe} || '%'
+			</if>
+			AND B.MFRC_REALM_SE LIKE '%' || #{kwMfrcRealmSe} || '%'
+			<if test="kwBsnAt!=null and kwBsnAt!=''">
+			AND B.BSN_AT LIKE '%' || #{kwBsnAt} || '%'
+			</if>
+			<if test="kwCrmnlHist!=null and kwCrmnlHist!=''">
+			AND B.CRMNL_HIST LIKE '%' || #{kwCrmnlHist} || '%'
+			</if>
+			<if test="kwTaxNpymHist!=null and kwTaxNpymHist!=''">
+			AND B.TAX_NPYM_HIST LIKE '%' || #{kwTaxNpymHist} || '%'
+			</if>
+			<if test="kwProcessSttus!=null and kwProcessSttus!=''">
+			AND B.PROCESS_STTUS LIKE '%' || #{kwProcessSttus} || '%'
+			</if>
+	</select>
+
+	
+	<!-- 관세사 상세조회(모달) -->
+	<select id="brkrlistOne" parameterType="userVO" resultMap="userMap">
+		SELECT A.USER_CD, A.PASSWORD, A.USER_NM, A.CLSF, A.IHIDNUM, A.ENCPN, A.EMAIL_ADRES, A.TELNO, A.ADRES, A.USER_SE, A.DETAIL_ADRES
+		     ,  B.CSTBRKR_CD, B.QUALF_ACQS_DE, B.LAST_ACDMCR, B.CONFM_AT, B.QUALF_NO, B.PROFILE_FILE
+		FROM USERR A INNER JOIN CUSTOMS_BROKER B ON(A.USER_CD = B.CSTBRKR_CD)
+		WHERE  A.USER_CD = #{userCd}
+	</select>
+	
+	<!--관세사 승인 업데이트  -->
+	<update id="brkrUpdate" parameterType="String">
+		UPDATE CUSTOMS_BROKER
+		SET CONFM_AT = 'T'
+		WHERE CSTBRKR_CD = #{userCd}
+	</update>
+	<update id="brkrUpdate2" parameterType="String">
+		UPDATE USER_AUTH
+		SET AUTH = 'ROLE_CUST'
+		WHERE USER_CD = #{userCd}
+	</update>
+
+	<!-- 고객관리 검색 페이지 네이션 및 페이징 -->
+	<select id="chargeCustomerList" parameterType="hashMap" resultMap="chargeCustomerMap">
+		WITH T AS(
+			SELECT ROWNUM RNUM, 
+		    A.CSTMR_CD, 
+		    B.ENTRPRS_NM, 
+		    B.REPRSNT_ADRES, 
+		    B.REPRSNT_TELNO, 
+		    B.REPRSNT_EMAIL,
+		    B.CHARGER, 
+		    B.ECTMRK, 
+		    B.MFRC_REALM_SE, 
+		    B.BIZRNO, 
+		    C.CPR_NO, 
+		    B.SCALE_SE, 
+		    B.BSN_AT, 
+		    B.CRMNL_HIST, 
+		    B.TAX_NPYM_HIST, 
+		    B.PROCESS_STTUS,
+		    D.USER_CD,
+		    D.USER_NM
+		FROM CHARGE_CUSTOMER A
+		FULL OUTER JOIN 
+		    CUSTOMER B 
+		ON A.CSTMR_CD = B.CSTMR_CD
+		FULL OUTER JOIN 
+		    LEGAL_PERSON C    
+		ON B.CSTMR_CD = C.CPR_CSTMR_CD
+		FULL OUTER JOIN 
+		    USERR D    
+		ON A.CSTBRKR_CD = D.USER_CD
+		WHERE 
+		    1=1
+		   <if test="keyword!=null and keyword!=''">
+			   <if test="searchList==''">
+<!-- 			   전체검색 -->
+			   AND (
+				    B.CSTMR_CD LIKE '%' || #{keyword} || '%'
+				    OR B.ENTRPRS_NM LIKE '%' || #{keyword} || '%'
+				    OR B.ECTMRK LIKE '%' || #{keyword} || '%'
+				    OR B.BIZRNO LIKE '%' || #{keyword} || '%'
+				    OR C.CPR_NO LIKE '%' || #{keyword} || '%'
+				    OR D.USER_NM LIKE '%' || #{keyword} || '%'
+				)
+				</if>
+<!-- 				검색어 설정 후 검색 -->
+				<if test="searchList!=''">
+				AND	${searchList} LIKE '%' || #{keyword} || '%'
+				</if>
+			</if>
+			<if test="kwScaleSe!=null and kwScaleSe!=''">
+			AND B.SCALE_SE LIKE '%' || #{kwScaleSe} || '%'
+			</if>
+			AND B.MFRC_REALM_SE LIKE '%' || #{kwMfrcRealmSe} || '%'
+			<if test="kwBsnAt!=null and kwBsnAt!=''">
+			AND B.BSN_AT LIKE '%' || #{kwBsnAt} || '%'
+			</if>
+			<if test="kwCrmnlHist!=null and kwCrmnlHist!=''">
+			AND B.CRMNL_HIST LIKE '%' || #{kwCrmnlHist} || '%'
+			</if>
+			<if test="kwTaxNpymHist!=null and kwTaxNpymHist!=''">
+			AND B.TAX_NPYM_HIST LIKE '%' || #{kwTaxNpymHist} || '%'
+			</if>
+			<if test="kwProcessSttus!=null and kwProcessSttus!=''">
+			AND B.PROCESS_STTUS LIKE '%' || #{kwProcessSttus} || '%'
+			</if>
+
+		)
+		SELECT T.* FROM T
+		WHERE  
+			T.RNUM BETWEEN (#{currentPage}*10) - (10 - 1) AND (#{currentPage}*10)
+	</select>
+
+</mapper>

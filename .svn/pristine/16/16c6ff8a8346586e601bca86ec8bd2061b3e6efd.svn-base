@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.trnsprt.mapper.StoreListMapper">
+
+	
+	<select id="storeReqList" parameterType="hashMap" resultType="storeReqVO">
+		SELECT
+		      A.ENTR_MANAGE_NO
+		    , A.START_PRT
+		    , A.ARVL_PRT
+		    , A.SHIP_NM
+		    , A.CLIENT
+		    , A.ENTR_SE
+		    , A.WAYBIL_NO
+		    , B.PROCESS_STTUS
+		    , B.USER_CD
+		    , B.PROCESS_DE
+		    , C.USER_NM
+		FROM
+		    ENTRY A, ENTRY_PROCESS_STATUS B, USERR C
+		WHERE 1=1
+		AND
+		    B.PROCESS_STTUS = 'EPS3'
+		AND
+		    B.USER_CD = C.USER_CD
+		AND
+		    A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+		AND 
+		    B.ENTR_MANAGE_NO 
+		NOT IN 
+		(
+		    SELECT
+		        ENTR_MANAGE_NO
+		    FROM 
+		        ENTRY_PROCESS_STATUS
+		    WHERE 
+		        PROCESS_STTUS = 'EPS4'
+		)
+		<if test="searchSDate != '' and searchEDate != '' and searchSDate != null and searchEDate != null">
+        AND 
+        	B.PROCESS_DE BETWEEN TO_DATE(#{searchSDate},'YYYY-MM-DD') AND TO_DATE(#{searchEDate},'YYYY-MM-DD') + 0.99999
+        </if>
+		<if test="entrManageNo != null and entrManageNo != '' ">
+		AND
+			A.ENTR_MANAGE_NO = #{entrManageNo}
+		</if>
+		<if test="client != null and client != ''">
+		AND
+			A.CLIENT LIKE '%'||#{client}||'%'
+		</if>
+		<if test="shipNm != null and shipNm != ''">
+		AND
+			A.SHIP_NM LIKE '%'||#{shipNm}||'%'
+		</if>
+		<if test="client != null and client != ''">
+		AND
+			C.USER_NM LIKE '%'||#{userNm}||'%'
+		</if>
+		ORDER BY B.PROCESS_DE DESC
+	</select>
+
+	<select id="finishReqList" parameterType="hashMap" resultType="storeReqVO">
+		SELECT
+		      A.ENTR_MANAGE_NO
+		    , A.START_PRT
+		    , A.ARVL_PRT
+		    , A.SHIP_NM
+		    , A.CLIENT
+		    , A.ENTR_SE
+		    , A.WAYBIL_NO
+		    , B.PROCESS_STTUS
+		    , B.USER_CD
+		    , B.PROCESS_DE
+		    , C.USER_NM
+		FROM
+		    ENTRY A, ENTRY_PROCESS_STATUS B, USERR C
+		WHERE 1=1
+		AND
+		    B.PROCESS_STTUS = 'EPS4'
+		AND
+		    B.USER_CD = C.USER_CD
+		AND
+		    A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+		<if test="searchSDate != '' and searchEDate != '' and searchSDate != null and searchEDate != null">
+        AND 
+        	B.PROCESS_DE BETWEEN TO_DATE(#{searchSDate},'YYYY-MM-DD') AND TO_DATE(#{searchEDate},'YYYY-MM-DD') + 0.99999
+        </if>
+		<if test="entrManageNo != null and entrManageNo != '' ">
+		AND
+			A.ENTR_MANAGE_NO = #{entrManageNo}
+		</if>
+		<if test="client != null and client != ''">
+		AND
+			A.CLIENT LIKE '%'||#{client}||'%'
+		</if>
+		<if test="shipNm != null and shipNm != ''">
+		AND
+			A.SHIP_NM LIKE '%'||#{shipNm}||'%'
+		</if>
+		<if test="client != null and client != ''">
+		AND
+			C.USER_NM LIKE '%'||#{userNm}||'%'
+		</if>
+		ORDER BY B.PROCESS_DE DESC
+	</select>
+	
+	<select id="selET" parameterType="hashMap" resultType="entryThingVO">
+		SELECT 
+			  ENTR_MANAGE_NO
+			, GOODS_NO
+			, CSTMR_CD
+			, THING_TY
+			, QY
+			, UNTPC
+			, AMOUNT
+			, TOT_AMOUNT
+			, NETWGHT
+			, TOT_WT
+			, BAGG_TNPAKG
+			, THING_NM
+			, DELNG_PRDNM
+		FROM 
+		    ENTRY_THING
+		WHERE
+		    ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	
+	<insert id="insertVD" parameterType="vehiclesDiaryVO">
+		INSERT INTO VEHICLES_DIARY 
+		(
+			  VHCLE_DIARY_CD
+			, IC_CARD_NO
+			, STRT_PNT
+			, ARVL_PNT
+			, STRT_TIME
+			, ARVL_TIME
+			, ENTR_MANAGE_NO
+			, STODEL_SE
+		)
+		VALUES
+		(
+		 	  'VEDI'||TO_CHAR(VEDI01001.NEXTVAL,'FM00000')
+			, #{icCardNo}
+			, #{strtPnt}
+			, #{arvlPnt}
+			, TO_DATE(#{strtTime},'YYYY-MM-DD HH24:MI')
+			, TO_DATE(#{arvlTime},'YYYY-MM-DD HH24:MI')
+			, #{entrManageNo}
+			, 1
+		)
+	</insert>
+	
+	<insert id="insertEntryStat" parameterType="entryProcessStatusVO">
+		INSERT INTO ENTRY_PROCESS_STATUS 
+		(
+			 ENTR_MANAGE_NO
+			, USER_CD
+			, PROCESS_STTUS
+			, PROCESS_DE
+			, ENPRSTNO
+		)
+		VALUES
+		(
+			  #{entrManageNo}
+			, #{userCd}
+			, 'EPS4'
+			, SYSDATE
+			, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1
+		)
+	</insert>
+	
+	<update id="updStoreDe" parameterType="hashMap">
+		UPDATE 
+			USE_BOUNDED_WAREHOUSE
+		SET
+			WRHOUSNG_DE = TO_DATE(#{wrhousngDe},'YYYY-MM-DD HH24:MI')
+		WHERE 1=1
+		AND
+			ENTR_MANAGE_NO = #{entrManageNo}
+	</update>
+</mapper>

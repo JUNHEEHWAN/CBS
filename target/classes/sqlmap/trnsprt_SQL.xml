@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.trnsprt.mapper.TrnsprtMapper">
+
+	<sql id="ship">
+		<if test="cmpnyCd !=null and cmpnyCd !=''">
+			AND cmpny_cd = #{cmpnyCd}
+		</if>
+	</sql>
+	
+	<select id="getList" resultType="hashMap" parameterType="trnsprtCompanyVO">
+		    SELECT 
+		            CMPNY_CD
+		          , TRNSPRT_GU
+		          , CMPNY_NM
+		          , CMPNY_ADRES
+		          , CMPNY_TELNO
+		          , RPRSNTV_NM
+		    FROM   
+		    	TRANSPORTATION_COMPANY
+		    WHERE  1 = 1
+		    <if test="trnsprtGu != null and trnsprtGu != ''">
+		    AND
+		    	TRNSPRT_GU = #{trnsprtGu}
+		    </if>
+		    <if test="cmpnyCd != null and cmpnyCd != ''">
+		    AND
+		    	CMPNY_CD = #{cmpnyCd}
+		    </if>
+		    <if test="cmpnyNm != null and cmpnyNm != ''">
+		    AND
+		    	CMPNY_NM LIKE '%'||#{cmpnyNm}||'%'
+		    </if>
+		    <if test="cmpnyTelno != null and cmpnyTelno != ''">
+		    AND
+		    	CMPNY_TELNO LIEK '%'||#{cmpnyTelno}||'%'
+		    </if>
+		    <if test="rprsntvNm != null and rprsntvNm != ''">
+		    AND
+		    	RPRSNTV_NM LIKE '%'||#{rprsntvNm}||'%'
+		    </if>
+	</select>
+	
+	
+	<select id="getShip" parameterType="hashMap" resultType="shipinformationVO">
+		    SELECT
+			      IMO_NO
+			    , CMPNY_CD
+			    , SHIP_NM
+			    , CBSTR_DATe
+			    , SHIP_NLTY
+			    , CLSGN
+			    , GRTG
+			    , SHIP_LT
+			    , SHIP_BT
+			    , SHIP_DP
+			    , SHIP_NO
+			FROM SHIP_INFORMATION
+			WHERE 1 = 1
+			AND 
+				CMPNY_CD = #{cmpnyCd}
+			<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			AND
+				CBSTR_DATE BETWEEN ETWEEN TO_DATE(#{startDate},'YYYY-MM-DD') AND TO_DATE(#{endDate},'YYYY-MM-DD') + 0.99999
+			</if>
+			<if test="imoNo != null and imoNo != ''">
+			AND
+				IMO_NO = #{imoNo}
+			</if>
+			<if test="shipNm != null and shipNm != ''">
+			AND
+				SHIP_NM LIKE '%'||#{shipNm}||'%'
+			</if>
+			<if test="startGrtg != null and startGrtg != '' and endGrtg != null and endGrtg != ''">
+			AND
+				GRTG BETWEEN #{startGrtg} AND #{endGrtg} 
+			</if>
+	</select>
+	
+	<select id="getTotalShip" resultType="int" parameterType="hashMap">
+		SELECT 
+			COUNT(*) 
+		FROM SHIP_INFORMATION
+		WHERE 1 = 1
+		<include refid="ship"/>
+	</select>
+	
+	
+	<select id="getVehi" parameterType="hashMap" resultType="vehiclesInformationVO">
+		SELECT
+			   VHCLE_CD
+			 , VHCLE_CMPNY_CD
+			 , VHCLE_NO
+			 , MDL_NM
+			 , LDADNG_VL
+			 , LDADNG_WT
+			 , LDADNG_LT
+			 , LDADNG_HG
+		FROM VEHICLES_INFORMATION
+		WHERE VHCLE_CMPNY_CD = #{cmpnyCd}
+	</select>
+</mapper>

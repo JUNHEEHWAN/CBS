@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.main.mapper.UserMapper">
+
+   <resultMap type="userVO" id="userMap">
+   	  <id  property="userCd" column="USER_CD"/>
+      <result property="userCd" column="USER_CD"/>
+      <result property="password" column="PASSWORD"/>
+      <result property="userNm" column="USER_NM"/>
+      <result property="clsf" column="CLSF"/>
+      <result property="ihidnum" column="IHIDNUM"/>
+      <result property="encpn" column="ENCPN"/>
+      <result property="emailAdres" column="EMAIL_ADRES"/>
+      <result property="telno" column="TELNO"/>
+      <result property="adres" column="ADRES"/>
+      <result property="detailAdres" column="DETAIL_ADRES"/>
+      <result property="userSe" column="USER_SE"/> 
+      <association property="customsBrokerVO" resultMap="customsBrokerMap"></association>
+      <collection property="userAuthVOList" resultMap="userAuthMap"></collection>
+   </resultMap>
+   
+   <resultMap type="userAuthVO" id="userAuthMap">
+      <result property="userCd" column="USER_CD" />
+      <result property="auth" column="AUTH" />
+   </resultMap>
+   
+   <resultMap type="CustomsBrokerVO" id="customsBrokerMap">
+		<result property="cstbrkrCd" column="CSTBRKR_CD"/>
+		<result property="qualfAcqsDe" column="QUALF_ACQS_DE"/>
+		<result property="lastAcdmcr" column="LAST_ACDMCR"/>
+		<result property="confmAt" column="CONFM_AT"/>
+		<result property="qualfNo" column="QUALF_NO"/>
+		<result property="profileFile" column="PROFILE_FILE"/>
+	</resultMap>
+   
+   
+   
+   <select id="listUser" resultType="userVO">
+      select * from USERR
+   </select>
+
+   <!-- User 찾아오기 -->
+   <select id="getUser" parameterType="String" resultMap="userMap">
+   	SELECT *
+	FROM USERR a,  USER_AUTH b, CUSTOMS_BROKER c
+	WHERE a.USER_CD  = #{username}
+	AND b.USER_CD = a.USER_CD
+	AND c.CSTBRKR_CD(+) = a.USER_CD
+   </select>
+
+	<!--정보업데이트  -->
+   <update id="updUser"  parameterType="userVO">
+      UPDATE USERR
+      SET 
+      password = #{password}
+      WHERE
+      user_cd = #{userCd}
+   </update>
+   
+   <!--ID 중복확인  -->
+   <select id="selectId" resultType="boolean">
+   	SELECT COUNT(*)
+	FROM USERR WHERE
+	USER_CD = #{id}
+   </select>
+   
+   <!--ID찾기  -->
+   <select id="findAjax" parameterType="userVO" resultType="userVO">
+   	SELECT  USER_CD
+    FROM  USERR
+   	WHERE USER_NM= #{userNm} AND IHIDNUM= #{ihidnum}
+   </select>
+   
+   <!--pw찾기  -->
+   <select id="findAjax2" parameterType="userVO" resultType="userVO">
+   	SELECT *
+    FROM  USERR
+   	WHERE USER_CD= #{userCd} AND IHIDNUM= #{ihidnum} AND TELNO= #{telno}
+   </select>
+   
+   <update id="pwUpdate" parameterType="userVO">
+   	UPDATE USERR
+   	SET PASSWORD = #{password}
+   	WHERE USER_CD= #{userCd}
+   </update>
+   
+     <!--user회원가입 등록  -->
+   <insert id="createUser" parameterType="userVO">
+   INSERT ALL INTO USERR(USER_CD, PASSWORD, USER_NM, CLSF, IHIDNUM, ENCPN, EMAIL_ADRES, TELNO, ADRES, DETAIL_ADRES, USER_SE)
+		VALUES(#{userCd}, #{password}, #{userNm}, '사원', #{ihidnum}, SYSDATE, #{emailAdres}, #{telno}, #{adres}, #{detailAdres}, 'UUS2')
+		INTO USER_AUTH(AUTH,USER_CD)VALUES('ROLE_CUSTNO', #{userCd}) SELECT * FROM DUAL
+   </insert>
+   
+   <!--관세사 회원가입 등록  -->
+   <insert id="createUser2" parameterType="userVO">
+   INSERT INTO CUSTOMS_BROKER(CSTBRKR_CD, QUALF_ACQS_DE, LAST_ACDMCR, CONFM_AT, QUALF_NO, PROFILE_FILE)
+		VALUES(#{userCd}, #{customsBrokerVO.qualfAcqsDe}, '학사', 'F', #{customsBrokerVO.qualfNo}, #{customsBrokerVO.profileFile}) 
+   </insert>
+   
+  
+   
+</mapper>

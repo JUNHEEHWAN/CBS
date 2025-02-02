@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.pbsvnt.admin.mapper.SvntAdminMapper">
+	<!-- ##################################### cusCheckList.jsp ##################################### -->
+	<!-- 고객 검사 목록 -->
+	<select id="cstCheck" parameterType="hashMap" resultType="customerVO">
+	    WITH T AS (
+		    SELECT 
+		        ROW_NUMBER() OVER(ORDER BY CSTMR_CD DESC) RNUM, 
+		        CSTMR_CD, 
+		        BIZRNO, 
+		        ENTRPRS_NM, 
+		        BSN_AT, 
+		        CRMNL_HIST, 
+		        TAX_NPYM_HIST, 
+		        PROCESS_STTUS    
+		    FROM 
+		        CUSTOMER    
+		    WHERE
+		    	1=1 AND PROCESS_STTUS != 'CPS1' AND PROCESS_STTUS = 'CPS2'
+		    	<if test="processSttus == 'all'">
+		    	OR PROCESS_STTUS IN ('CPS2', 'CPS3', 'CPS4')
+		    	</if>
+		        <if test="processSttus != null and processSttus != '' and processSttus != 'all'">
+		        AND PROCESS_STTUS != 'CPS2' OR PROCESS_STTUS = #{processSttus}
+		        </if>
+		        <if test="searchCategory != null and searchCategory != '' and keyword != null and keyword != ''">
+		        AND ${searchCategory} LIKE '%' || #{keyword} || '%'
+		        </if>
+		)
+		SELECT * 
+		FROM 
+		    T       
+		WHERE       
+		    T.RNUM BETWEEN ((#{currentPage}*10) - 9) AND (#{currentPage}*10)
+	</select>
+	
+	<!-- 고객 검사 페이징 처리 위한 총 게시글 수 -->
+	<select id="getTotalCstCheckList" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*) 
+		FROM CUSTOMER 
+		WHERE 1=1
+		<if test="processSttus == null and processSttus == ''">
+		AND PROCESS_STTUS = 'CPS2'
+		</if>
+		<if test="processSttus != null and processSttus == 'all'">
+		AND PROCESS_STTUS IN ('CPS2', 'CPS3', 'CPS4')
+		</if>
+		<if test="processSttus != null and processSttus == 'CPS2'">
+		AND PROCESS_STTUS = 'CPS2'
+		</if>
+		<if test="processSttus != null and processSttus == 'CPS3'">
+		AND PROCESS_STTUS = 'CPS3'
+		</if>
+		<if test="processSttus != null and processSttus == 'CPS4'">
+		AND PROCESS_STTUS = 'CPS4'
+		</if>
+	</select>
+	
+	<!-- 고객 처리 상태 변경 -->
+	<update id="updSttus" parameterType="customerVO">
+		UPDATE CUSTOMER 
+		SET PROCESS_STTUS = #{processSttus}, PROCESS_DE = SYSDATE
+		WHERE CSTMR_CD = #{cstmrCd}
+	</update>
+	
+	<!-- 고객 코드 클릭시 고객 상세 -->
+	<select id="oneCustomer" parameterType="customerVO" resultType="customerVO">
+		SELECT ENTRPRS_NM, REPRSNT_ADRES, BIZRNO, BSN_AT, CRMNL_HIST, TAX_NPYM_HIST
+		FROM CUSTOMER
+		WHERE CSTMR_CD = #{cstmrCd}
+	</select>
+	
+	<!-- 고객 검사 랜덤값 넣기 (영업 여부, 범죄 여부, 세금 체납 여부) -->
+	<update id="cusChkRandUpd" parameterType="customerVO">
+		UPDATE CUSTOMER 
+		SET BSN_AT = #{bsnAt}, CRMNL_HIST = #{crmnlHist}, TAX_NPYM_HIST = #{taxNpymHist}
+		WHERE CSTMR_CD = #{cstmrCd}
+	</update>
+	
+	<!-- 고객 검사 값 가져오기 (영업 여부, 범죄 여부, 세금 체납 여부) -->
+	<select id="oneCusChk" parameterType="String" resultType="customerVO">
+		SELECT BSN_AT, CRMNL_HIST, TAX_NPYM_HIST
+		FROM CUSTOMER
+		WHERE CSTMR_CD = #{cstmrCd}
+	</select>
+	<!-- ############################################################################################ -->
+	
+	<!-- ####################################### entryList.jsp ###################################### -->
+	<!-- 통관 접수 후 심사 전 배정 목록 -->
+	<select id="entryList" parameterType="hashMap" resultType="entryVO">
+		WITH T AS (
+		    SELECT ROW_NUMBER() OVER(ORDER BY ENTR_MANAGE_NO DESC) RNUM
+		          , ENTR_MANAGE_NO
+		          , CSTMR_CD
+		          , CLIENT
+		          , NOTIFY_INFO
+		          , ENTR_SE
+		          , MANCTM_KWA
+		          , MANCTM_KWA_CHARGER
+		          , TRNSPRT_STLE
+		          , COUDES
+		          , QRANT_TARGET_AT
+		    FROM ENTRY
+		    WHERE PBSVNT_CD IS NULL
+		    <if test="entrSe == 'all'">
+		    AND ENTR_SE IN ('EES1', 'EES2')
+		    </if>
+		    <if test="entrSe != null and entrSe != '' and entrSe != 'all'">
+		    AND ENTR_SE = #{entrSe}
+		    </if>
+		    <if test="manctmKwa == 'all'">
+		    AND MANCTM_KWA IN ('대전', '부산', '울산', '인천')
+		    </if>
+		    <if test="manctmKwa != null and manctmKwa != '' and manctmKwa != 'all'">
+		    AND MANCTM_KWA = #{manctmKwa}
+		    </if>
+		    <if test="qrantTargetAt == 'all'">
+		    AND QRANT_TARGET_AT IN ('1', '2')
+		    </if>
+		    <if test="qrantTargetAt != null and qrantTargetAt != '' and qrantTargetAt != 'all'">
+		    AND QRANT_TARGET_AT = #{qrantTargetAt}
+		    </if>
+		    <if test="searchCategory != null and searchCategory != '' and keyword != null and keyword != ''">
+			AND ${searchCategory} LIKE '%' || #{keyword} || '%'
+			</if>
+		)
+		SELECT * FROM T
+		WHERE  
+		    T.RNUM BETWEEN ((#{currentPage}*10) - 9) AND (#{currentPage}*10)
+	</select>
+	
+	<!-- 통관 접수시 공무원 코드 UPDATE, 통관 현황 테이블 INSERT -->
+	<update id="updPbsvntCd" parameterType="String">
+		UPDATE ENTRY
+		SET PBSVNT_CD = #{pbsvntCd}
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</update>
+	
+	<!-- 통관 접수시 ENTRY PROCESS STAUS TABLE INSERT -->
+    <insert id="eps2upd" parameterType="hashMap">
+       INSERT INTO ENTRY_PROCESS_STATUS (ENTR_MANAGE_NO, USER_CD, PROCESS_STTUS, PROCESS_DE, ENPRSTNO)
+        VALUES (#{entrManageNo}, #{userCd}, 'EPS2', SYSDATE, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1)
+    </insert>
+	
+	<select id="getTotalEntryList" resultType="int">
+		SELECT COUNT(*) 
+		FROM ENTRY
+		WHERE PBSVNT_CD IS NULL 
+	</select>
+	
+	<!-- 통관 심사 목록 -->
+	<select id="judgeList" parameterType="hashMap" resultType="entryProcessStatusVO">
+	    WITH T AS (
+			    SELECT * 
+			    FROM (
+			        SELECT 
+			            ROW_NUMBER() OVER(ORDER BY A.ENTR_MANAGE_NO DESC) as RNUM,
+			            ROW_NUMBER() OVER(PARTITION BY A.ENTR_MANAGE_NO ORDER BY B.PROCESS_DE DESC) AS rn,
+			            A.ENTR_MANAGE_NO,	
+			            FN_PROCESS_STTUS_KR(B.PROCESS_STTUS) AS PROCESS_STTUS,
+			            A.ENTR_SE,
+			            C.USER_NM,
+			            C.TELNO,
+			            C.EMAIL_ADRES,
+			            B.PROCESS_DE,
+			            A.PBSVNT_CD
+			        FROM ENTRY A 
+			        JOIN ENTRY_PROCESS_STATUS B ON A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+			        JOIN USERR C ON C.USER_CD = B.USER_CD
+			    ) ORDERTABLE
+			    WHERE 
+			        ORDERTABLE.rn = 1 
+			        AND PBSVNT_CD = #{pbsvntCd}
+			        <if test="entrSe == 'all'">
+			            AND ENTR_SE IN ('EES1', 'EES2')
+			        </if>
+			        <if test="entrSe != null and entrSe != '' and entrSe != 'all'">
+			            AND ENTR_SE = #{entrSe}
+			        </if>
+			        <if test="processSttus == 'all'">
+			            AND PROCESS_STTUS IN ('EPS2', 'EPS3', 'EPS4', 'EPS5', 'EPS6', 'EPS7', 'EPS8', 'EPS9', 'EPS10', 'EPS11', 'EPS12')
+			        </if>
+			        <if test="processSttus != null and processSttus != '' and processSttus != 'all'">
+			            AND PROCESS_STTUS = #{processSttus}
+			        </if>
+			        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			            AND PROCESS_DE BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(CONCAT(#{endDate}, ' 23:59:59'), 'YYYY-MM-DD HH24:MI:SS')
+			        </if>
+			        <if test="searchCategory != null and searchCategory != '' and keyword != null and keyword != ''">
+			            AND ${searchCategory} LIKE '%' || #{keyword} || '%'
+			        </if>
+			),
+			TT AS (
+			    SELECT 
+			        ROW_NUMBER() OVER(ORDER BY T.RNUM) as PAGE_RNUM,
+			        T.*
+			    FROM T
+			) 
+			SELECT * 
+			FROM TT
+			WHERE TT.PAGE_RNUM BETWEEN ((#{currentPage}*10) - 9) AND (#{currentPage}*10)
+			ORDER BY PROCESS_DE DESC
+	</select>
+
+	<select id="getTotalJudgeList" resultType="int">
+		WITH T AS (
+		    SELECT 
+		        ROW_NUMBER() OVER(ORDER BY A.ENTR_MANAGE_NO DESC) as RNUM,
+		        A.ENTR_MANAGE_NO,
+		        C.ENTR_SE,
+		        A.PROCESS_STTUS,
+		        B.USER_NM,
+		        B.TELNO,
+		        B.EMAIL_ADRES,
+		        A.PROCESS_DE,
+		        ROW_NUMBER() OVER(PARTITION BY A.ENTR_MANAGE_NO ORDER BY A.ENPRSTNO DESC) AS rn
+		    FROM 
+		        ENTRY_PROCESS_STATUS A
+		    JOIN 
+		        USERR B ON A.USER_CD = B.USER_CD
+		    JOIN 
+		        ENTRY C ON A.ENTR_MANAGE_NO = C.ENTR_MANAGE_NO
+		    WHERE 
+		        C.ENTR_MANAGE_NO IN (SELECT ENTR_MANAGE_NO FROM ENTRY)
+		) 
+		SELECT 
+		    COUNT(*) AS total_count
+		FROM 
+		    T
+		WHERE T.rn = 1
+	</select>
+	
+	<!-- 통관 번호 클릭시 상세 정보 -->
+	<select id="oneEntryDetail" parameterType="String" resultType="oneEntryDetailVO">
+		SELECT 
+		    C.ENTRPRS_NM,
+		    CASE
+		        WHEN EXISTS (SELECT 1 FROM LEGAL_PERSON LP WHERE LP.CPR_CSTMR_CD = C.CSTMR_CD) THEN '법인'
+		        WHEN EXISTS (SELECT 1 FROM INDIVIDUAL_PERSON IP WHERE IP.INDVDL_BSNM_CSTMR_CD = C.CSTMR_CD) THEN '개인'
+		        ELSE '기타'
+		    END AS CUSTOMER_TYPE,
+		    C.SCALE_SE,
+		    D.QUALF_NO,
+		    E.USER_NM,
+		    E.TELNO,
+		    E.EMAIL_ADRES,
+		    A.EXPTER_CMPNM, A.IMPR_CMPNM,
+		    A.EXPTER_ADRES, A.IMPR_ADRES,
+		    A.EXPTER_TELNO, A.IMPR_TELNO,
+		    A.EXPTER_CHARGER, A.IMPR_CHARGER,
+		    A.WAYBIL_NO,
+		    A.TRNSPRT_STLE,
+		    A.COUDES,
+		    A.SHIP_NM,
+		    A.START_PRT,
+		    A.ARVL_PRT,
+		    A.SHIP_START_DE,
+		    A.SHIP_END_DE,
+		    F.PROCESS_STTUS
+		FROM 
+		    ENTRY A 
+		JOIN 
+		    (SELECT DISTINCT ENTR_MANAGE_NO FROM ENTRY_THING) B ON A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+		JOIN 
+		    CUSTOMER C ON A.CSTMR_CD = C.CSTMR_CD
+		JOIN 
+		    CUSTOMS_BROKER D ON A.CSTBRKR_CD = D.CSTBRKR_CD
+		JOIN 
+		    USERR E ON E.USER_CD = D.CSTBRKR_CD
+		JOIN
+		    (SELECT *
+		     FROM (SELECT * 
+		           FROM ENTRY_PROCESS_STATUS
+		           WHERE ENTR_MANAGE_NO = #{entrManageNo}
+		           ORDER BY PROCESS_DE DESC)
+		     WHERE ROWNUM = 1) F ON A.ENTR_MANAGE_NO = F.ENTR_MANAGE_NO
+	</select>
+	
+	<select id="tooltipInfo" parameterType="String" resultType="oneEntryDetailVO">
+		SELECT A.USER_NM, A.TELNO, B.PROCESS_STTUS, B.PROCESS_DE
+		FROM USERR A JOIN ENTRY_PROCESS_STATUS B ON A.USER_CD = B.USER_CD
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	
+<!-- 	#####################################동현시작################################################ -->
+	<select id="entryDetailList" parameterType="String" resultType="EntryThingVO">
+		SELECT 
+		    A.ENTR_MANAGE_NO
+		   ,A.GOODS_NO
+		   ,A.CSTMR_CD
+		   ,A.THING_TY
+		   ,A.QY
+		   ,A.UNTPC
+		   ,A.AMOUNT
+		   ,A.TOT_AMOUNT
+		   ,A.NETWGHT
+		   ,A.TOT_WT
+		   ,A.BAGG_TNPAKG
+		   ,A.THING_NM
+		   ,A.DELNG_PRDNM
+		   ,B.HS_CD
+		   ,B.GOODS_NM
+		FROM 
+		    ENTRY_THING A JOIN GOODS B
+		ON A.GOODS_NO = B.GOODS_NO
+		WHERE 
+		    A.ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+<!-- 	#####################################동현끝################################################## -->
+	
+	<!-- EPS2 상태에서 운송(입고) 신청시 창고 update -->
+	<insert id="updWarehouse" parameterType="useBoundedWarehouseVO">
+		INSERT INTO USE_BOUNDED_WAREHOUSE (BNDWAS_CD, ENTR_MANAGE_NO, GOODS_NO, CSTMR_CD)
+		SELECT #{bndwasCd}, #{entrManageNo}, GOODS_NO, CSTMR_CD
+		FROM ENTRY_THING
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</insert>
+	
+	<!-- 운송(입고) 신청 완료 후 EPS2 -> EPS3 -->
+	<insert id="eps3upd" parameterType="hashMap">
+		INSERT INTO ENTRY_PROCESS_STATUS (ENTR_MANAGE_NO, USER_CD, PROCESS_STTUS, PROCESS_DE, ENPRSTNO)
+    	VALUES (#{entrManageNo}, #{userCd}, 'EPS3', SYSDATE, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1)
+	</insert>
+	
+	<!-- 검역 요청시 EPS5 -->
+	<insert id="eps5upd" parameterType="entryProcessStatusVO">
+		INSERT INTO ENTRY_PROCESS_STATUS (ENTR_MANAGE_NO, USER_CD, PROCESS_STTUS, PROCESS_DE, ENPRSTNO)
+    	VALUES (#{entrManageNo}, #{userCd}, 'EPS5', SYSDATE, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1)
+	</insert>
+
+	<insert id="quarPassEps8upd" parameterType="entryProcessStatusVO">
+		INSERT INTO ENTRY_PROCESS_STATUS (ENTR_MANAGE_NO, USER_CD, PROCESS_STTUS, PROCESS_DE, ENPRSTNO)
+    	VALUES (#{entrManageNo}, #{userCd}, 'EPS8', SYSDATE, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1)
+	</insert>
+	
+	<!-- 출고 요청시 -->
+	<insert id="eps10upd" parameterType="entryProcessStatusVO">
+		INSERT INTO ENTRY_PROCESS_STATUS (ENTR_MANAGE_NO, USER_CD, PROCESS_STTUS, PROCESS_DE, ENPRSTNO)
+    	VALUES (#{entrManageNo}, #{userCd}, 'EPS10', SYSDATE, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1)
+	</insert>
+
+	<!-- 수출입 승인시 -->
+	<insert id="eps12upd" parameterType="entryProcessStatusVO">
+		INSERT INTO ENTRY_PROCESS_STATUS (ENTR_MANAGE_NO, USER_CD, PROCESS_STTUS, PROCESS_DE, ENPRSTNO)
+    	VALUES (#{entrManageNo}, #{userCd}, 'EPS12', SYSDATE, (SELECT MAX(ENPRSTNO) FROM ENTRY_PROCESS_STATUS) + 1)
+	</insert>
+	
+	<!-- 자동 배정된 창고 구역, 번호 불러오기 -->
+	<select id="getWarehouseInfo" parameterType="boundedWarehouseVO" resultType="boundedWarehouseVO">
+		SELECT DISTINCT BNDWAS_ZONE, BNDWAS_NO
+		FROM BOUNDED_WAREHOUSE
+		WHERE BNDWAS_CD = (SELECT DISTINCT BNDWAS_CD FROM USE_BOUNDED_WAREHOUSE WHERE ENTR_MANAGE_NO = #{entrManageNo})
+	</select>
+	
+	
+	<!-- 검역 요청 코드 +1 값 가져오기 -->
+	<select id="getQrantRequestCd" resultType="String">
+		SELECT 'QURE' || TO_CHAR(QURE01001.NEXTVAL + 1, 'FM00000') AS QRANT_REQUEST_CD
+		FROM DUAL
+	</select>
+	
+	<insert id="insQuarRequest" parameterType="quarantineRequestVO">
+		INSERT INTO QUARANTINE_REQUEST (QRANT_REQUEST_CD, QRANT_SE, QRANT_RESULT_AT, REQUST_DE, REQUST_PLACE, PBSVNT_CD, ENTR_MANAGE_NO, GOODS_NO, CSTMR_CD)
+		SELECT DISTINCT
+		    #{qrantRequestCd},
+		    #{qrantSe},
+		    'N',
+		    #{requstDe},
+		    #{requstPlace},
+		    null,
+		    #{entrManageNo},
+		    #{goodsNo},
+		    CSTMR_CD
+		FROM ENTRY_THING
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</insert>
+	
+	<!-- 승인기관, 유효기간, 승인번호, 날짜, 승인자 insert -->
+	<insert id="insExportLicense" parameterType="String">
+		INSERT INTO EXPORT_LICENSE (CONFM_INSTT, VALID_PD, CONFM_NO, CONFM_DE, CONFMER, ENTR_MANAGE_NO)
+		SELECT '관세청',
+		       ADD_MONTHS(SYSDATE, 12),
+		       TO_CHAR(SYSDATE, 'YYYYMMDD') || '-' || LPAD(confm_no_seq.NEXTVAL, 5, '0'),
+		       SYSDATE,
+		       (SELECT USER_NM
+		        FROM USERR
+		        WHERE USER_CD = (SELECT PBSVNT_CD FROM ENTRY WHERE ENTR_MANAGE_NO = #{entrManageNo})),
+		       #{entrManageNo}
+		FROM DUAL
+		WHERE NOT EXISTS (SELECT 1 FROM EXPORT_LICENSE WHERE ENTR_MANAGE_NO = #{entrManageNo})
+	</insert>
+	
+	<!-- 수출입 승인서 값 select -> 리스트 아닌 것 -->
+	<select id="getExportLicense" parameterType="exportLicenseVO" resultType="exportLicenseVO">
+		SELECT 
+		    EXPTER_CMPNM,       
+		    EXPTER_ADRES,       
+		    CLIENT,       
+		    (SELECT REPRSNT_ADRES FROM CUSTOMER WHERE CSTMR_CD = (SELECT CSTMR_CD FROM ENTRY WHERE ENTR_MANAGE_NO = #{entrManageNo})) AS CLIENT_ADRES,       
+		    IMPR_CMPNM,       
+		    (SELECT #{entrManageNo} FROM DUAL) AS ENTR_MANAGE_NO,       
+		    (SELECT SUM(TOT_AMOUNT) FROM ENTRY_THING WHERE ENTR_MANAGE_NO = #{entrManageNo}) AS TOT_AMOUNT,
+		    ENTR_SE,       
+		    MANCTM_KWA,       
+		    ARVL_PRT
+		FROM ENTRY 
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	
+	<!-- 수출입 승인서 값 select -> 리스트인 것 -->
+	<select id="getExportLicense2" parameterType="exportLicenseVO" resultType="exportLicenseVO">
+		SELECT HS_CD, GOODS_NM, THING_TY, QY, UNTPC, AMOUNT
+		FROM ENTRY_THING A JOIN GOODS B
+		ON A.GOODS_NO = B.GOODS_NO
+		WHERE A.ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	
+	<!-- 수출입 승인서 값 select -> section3 -->
+	<select id="getExportLicense3" parameterType="exportLicenseVO" resultType="exportLicenseVO"	>
+		SELECT CONFM_INSTT, VALID_PD, CONFM_NO, CONFM_DE, CONFMER 
+		FROM EXPORT_LICENSE 
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	
+	<!-- 보세창고전표 -->
+	<select id="warehouseChit" parameterType="warehouseChitVO" resultType="warehouseChitVO">
+		SELECT DISTINCT A.WRHOUSNG_DE
+			, A.DLIVY_DE
+			, (A.DLIVY_DE - A.WRHOUSNG_DE) AS CHCY
+		    , (SELECT SUM(TOT_WT) FROM ENTRY_THING WHERE ENTR_MANAGE_NO = #{entrManageNo}) AS TOT_WT
+		    , (SELECT SUM(TOT_AMOUNT) FROM ENTRY_THING WHERE ENTR_MANAGE_NO = #{entrManageNo}) AS APRPC
+		    , (SELECT SUM(A.TOT_AMOUNT * B.GOODS_TAXRT/100) FROM ENTRY_THING A JOIN GOODS B ON A.GOODS_NO = B.GOODS_NO WHERE ENTR_MANAGE_NO = #{entrManageNo}) AS CSTMS
+		FROM USE_BOUNDED_WAREHOUSE A INNER JOIN ENTRY_THING B
+		ON A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+		WHERE A.ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+		
+<!-- 	<select id="pbQuarList" resultType="quarantineDetailVO"> -->
+<!-- 		SELECT A.QRANT_NO, A.GOODS_NO, A.EXC_DE, A.EXC_PLACE, B.QRANT_RESULT_AT -->
+<!-- 		FROM QUARANTINE_DETAIL A JOIN QUARANTINE_REQUEST B ON A.QRANT_INFO_CD = B.QRANT_INFO_CD -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="error" resultType="errorsInDeclarationVO"> -->
+<!-- 		SELECT ERORDEC_NO, THNG_NO, ERORDEC_DE, APLCNT -->
+<!-- 		FROM ERRORS_IN_DECLARATION -->
+<!-- 	</select> -->
+	
+	<!-- 서류 심사 내 담당 목록 -->
+<!-- 	<select id="myList" parameterType="String" resultType="entryVO"> -->
+<!-- 		SELECT ENTR_MANAGE_NO, CLIENT, NOTIFY_INFO, ENTR_SE, MANCTM_KWA, MANCTM_KWA_CHARGER, TRNSPRT_STLE, COUDES, STTEMNT_DE -->
+<!-- 		FROM ENTRY -->
+<!-- 		WHERE PBSVNT_CD = #{pbsvntCd} -->
+<!-- 		ORDER BY ENTR_MANAGE_NO DESC -->
+<!-- 	</select> -->
+	
+<!-- 	서류 심사 접수 대기 목록 -->
+<!-- 	<select id="allList" resultType="entryVO"> -->
+<!-- 		SELECT ENTR_MANAGE_NO, CLIENT, NOTIFY_INFO, ENTR_SE, MANCTM_KWA, MANCTM_KWA_CHARGER, TRNSPRT_STLE, COUDES, STTEMNT_DE -->
+<!-- 		FROM ENTRY -->
+<!-- 		WHERE PBSVNT_CD IS NULL -->
+<!-- 		ORDER BY ENTR_MANAGE_NO DESC -->
+<!-- 	</select> -->
+</mapper>

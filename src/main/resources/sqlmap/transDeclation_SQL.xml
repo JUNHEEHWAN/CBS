@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.main.declaration.mapper.TransDeclrationMapper">
+	
+	<insert id="insTrnDecl" parameterType="transportDeclarationVO">
+		INSERT INTO TRANSPORT_DECLARATION
+			(
+				  DCLRT_NO
+				, DCLRT_DE
+				, USER_CD
+				, USER_CMPNM
+				, USER_NM
+				, USER_ADRES
+				, ENTR_MANAGE_NO
+				, VHCLE_DIARY_CD
+				, STRT_PNT
+				, ARVL_PNT
+				, STRT_TIME
+				, ARVL_TIME
+				, DCLRT_STTUS
+			)
+		VALUES
+			(
+				(SELECT NVL(MAX(DCLRT_NO), 0) FROM TRANSPORT_DECLARATION) + 1
+				, SYSDATE
+				, #{userCd}
+				, #{userCmpnm}
+				, #{userNm}
+				, #{userAdres}
+				, #{entrManageNo}
+				, #{vhcleDiaryCd}
+				, #{strtPnt}
+				, #{arvlPnt}
+				, TO_DATE(#{strtTime},'YYYY-MM-DD HH24:MI:SS')
+				, TO_DATE(#{arvlTime},'YYYY-MM-DD HH24:MI:SS')
+				, 1
+			)
+	</insert>
+	
+	<select id="selVehiInfo" parameterType="hashMap" resultType="vehiclesDiaryVO">
+		SELECT 
+			ENTR_MANAGE_NO, VHCLE_DIARY_CD, STRT_PNT , ARVL_PNT, STRT_TIME , ARVL_TIME, STODEL_SE
+		FROM 
+			VEHICLES_DIARY
+		WHERE
+			ENTR_MANAGE_NO = #{entrManageNo}
+		AND
+			STODEL_SE = 1
+	</select>
+	
+	<select id="selUserInfo" parameterType="hashMap" resultType="userVO">
+		SELECT 
+			USER_CD, USER_NM, ADRES 
+		FROM 
+			USERR 
+		WHERE 
+			USER_CD = #{userCd}
+	</select>
+	
+	<select id="selVehiDecl" parameterType="hashMap" resultType="transportDeclarationVO">
+		SELECT
+		      A.QY
+		    , A.TOT_WT
+		    , A.THING_NM
+		    , A.BAGG_TNPAKG
+		    , B.BL_NO
+		    , C.CNTANR_INNB
+		    , D.DCLRT_NO
+		    , D.DCLRT_DE
+		    , D.USER_CD
+		    , D.USER_CMPNM
+		    , D.USER_NM
+		    , D.ENTR_MANAGE_NO
+		    , D.VHCLE_DIARY_CD
+		    , D.STRT_PNT
+		    , D.ARVL_PNT
+		    , D.STRT_TIME
+		    , D.ARVL_TIME
+		    , E.ADRES
+		FROM 
+		    ENTRY_THING A
+		JOIN 
+		    SHIP_OPERATE_CONTAINER C ON A.ENTR_MANAGE_NO = C.ENTR_MANAGE_NO
+		JOIN 
+		    SHIP_DIARY B ON C.SHIP_DIARY_CD = B.SHIP_DIARY_CD AND C.IMO_NO = B.IMO_NO
+		JOIN 
+		    TRANSPORT_DECLARATION D ON A.ENTR_MANAGE_NO = D.ENTR_MANAGE_NO
+		JOIN 
+		    USERR E ON E.USER_CD = D.USER_CD
+		WHERE 
+		    A.ENTR_MANAGE_NO = #{entrManageNo}
+<!-- 		AND -->
+<!-- 		    D.USER_CD = #{userCd}  -->
+	</select>
+	
+	<select id="selTranChit" parameterType="hashMap" resultMap="tranChitMap">
+		SELECT
+			  A.USER_CD
+			, A.USER_NM
+			, A.VHCLE_DIARY_CD
+			, A.STRT_PNT
+			, A.ARVL_PNT
+			, A.STRT_TIME
+			, A.ARVL_TIME
+			, A.DCLRT_STTUS
+			, A.ENTR_MANAGE_NO
+			, C.CHARGER
+			, C.ENTRPRS_NM
+			, C.REPRSNT_ADRES
+			, C.BIZRNO
+			, D.THING_NM
+			, D.QY
+			, D.UNTPC
+			, D.TOT_WT
+			, E.TELNO
+		FROM 
+		    TRANSPORT_DECLARATION A
+		JOIN
+		    ENTRY B ON A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+		JOIN
+		    CUSTOMER C ON B.CSTMR_CD = C.CSTMR_CD
+		JOIN
+		    USERR E ON A.USER_CD = E.USER_CD 
+		JOIN
+		    ENTRY_THING D ON B.ENTR_MANAGE_NO = D.ENTR_MANAGE_NO
+		WHERE
+		    A.ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	<resultMap type="transportChitVO" id="tranChitMap">
+		<result property="userNm" column="USER_NM"/>
+		<result property="entrManageNo" column="ENTR_MANAGE_NO"/>
+		<result property="vhcleDiaryCd" column="VHCLE_DIARY_CD"/>
+		<result property="strtPnt" column="STRT_PNT"/>
+		<result property="arvlPnt" column="ARVL_PNT"/>
+		<result property="strtTime" column="STRT_TIME"/>
+		<result property="arvlTime" column="ARVL_TIME"/>
+		<result property="charger" column="CHARGER"/>
+		<result property="entrprsNm" column="ENTRPRS_NM"/>
+		<result property="reprsntAdres" column="REPRSNT_ADRES"/>
+		<result property="bizrno" column="BIZRNO"/>
+		<collection property="entryThingList" resultMap="entyThingMap"/>
+	</resultMap>
+	<resultMap type="entryThingVO" id="entyThingMap">
+		<result property="qy" column="QY"/>
+		<result property="untpc" column="UNTPC"/>
+		<result property="totWt" column="TOT_WT"/>
+		<result property="thingNm" column="THING_NM"/>
+	</resultMap>
+	
+	
+	<update id="updtranDecl">
+		UPDATE TRANSPORT_DECLARATION 
+			SET DCLRT_STTUS = #{dclrtSttus}
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</update>
+</mapper>

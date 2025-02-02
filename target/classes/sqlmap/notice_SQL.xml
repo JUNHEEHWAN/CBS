@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.admin.mapper.NoticeMapper">
+	<sql id="notice">
+		<if test="keyword !=null and keyword !=''">
+			AND(
+			 	TITL LIKE '%' || #{keyword} || '%'
+			 OR	CN LIKE '%' || #{keyword} || '%'
+			 )
+		</if>
+	</sql>
+
+	<!-- 공지사항 검색 페이지 네이션 -->
+	<select id="noticeGetTotal" resultType="int" parameterType="hashMap">
+		SELECT 
+		COUNT(*) 
+		FROM NOTICE
+		WHERE 1 = 1
+		<include refid="notice"></include>
+	</select>
+	
+	<!--전체리스트   -->
+	<select id="noticeList" parameterType="hashMap" resultType="noticeVO">
+		WITH T AS(
+			SELECT 
+			NOTICE_NO, USER_CD, TITL, CN, RGSDE
+			FROM NOTICE
+			WHERE  1 = 1
+			<include refid="notice"></include> ORDER BY RGSDE DESC
+			)
+		SELECT T2.* FROM (SELECT ROWNUM RNUM, T.* FROM T) T2   
+		WHERE T2.RNUM BETWEEN (#{currentPage}*10) - (10 - 1) AND (#{currentPage}*10)
+	</select>
+	
+	<!--상세페이지  -->
+	<select id="noticeDetail" parameterType="String" resultType="noticeVO">
+		SELECT NOTICE_NO, USER_CD, TITL, CN, RGSDE, FILE_URL
+		FROM   NOTICE
+		WHERE  NOTICE_NO = #{noticeNo}
+	</select>
+
+	<!--공지사항 등록 -->
+	<insert id="noticeCreate" parameterType="noticeVO">
+	 	INSERT INTO NOTICE(NOTICE_NO, USER_CD, TITL, CN, RGSDE, FILE_URL)
+	 	VALUES((SELECT NVL(MAX(NOTICE_NO), 0) + 1 FROM NOTICE), 'admin', #{titl}, #{cn}, sysdate, #{fileUrl})
+	</insert>
+
+	<!--공지사항 삭제  -->
+	<delete id="delete" parameterType="String">
+		DELETE FROM NOTICE
+		WHERE NOTICE_NO = #{noticeNo}
+	</delete>
+	
+	<!--공지사항 수정  -->
+	<update id="update" parameterType="noticeVO">
+		UPDATE NOTICE
+		SET    TITL = #{titl}
+		     , CN = #{cn}
+		     ,FILE_URL = #{fileUrl}
+		WHERE  NOTICE_NO = #{noticeNo}
+	</update>
+
+
+
+
+
+
+
+
+
+</mapper>

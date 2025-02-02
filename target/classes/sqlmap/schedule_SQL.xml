@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.main.mapper.ScheduleMapper">
+	<insert id="insert" parameterType="scheduleVO">
+		INSERT INTO
+		CALENDAR(CALE_CD,
+		USER_CD, CALE_DATE_TIME_START, CALE_DATE_TIME_END, CALE_CN)
+		VALUES
+		(SEQ_CALENDAR.NEXTVAL,#{userCd},#{caleDateTimeStart},#{caleDateTimeEnd},#{caleCn})
+	</insert>
+
+	<select id="findAll" resultType="scheduleVO">
+		SELECT CALE_CD, USER_CD, CALE_DATE_TIME_START, CALE_DATE_TIME_END, CALE_CN
+		FROM CALENDAR
+		WHERE USER_CD = #{id}
+	</select>
+
+	<delete id="delete" parameterType="String">
+		DELETE FROM CALENDAR WHERE
+		CALE_DATE_TIME_START = #{data}
+	</delete>
+
+	<update id="update" parameterType="scheduleVO">
+		UPDATE CALENDAR
+		SET
+		CALE_DATE_TIME_START = #{caleDateTimeStart},
+		CALE_DATE_TIME_END =
+		#{caleDateTimeEnd}
+		WHERE CALE_DATE_TIME_START = #{caleDateOldTimeStart}
+	</update>
+</mapper>
+

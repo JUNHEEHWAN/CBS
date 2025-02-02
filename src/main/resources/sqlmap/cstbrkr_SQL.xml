@@ -1,0 +1,1156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.cbs.cstbrkr.mapper.CstbrkrMapper">
+
+	<!-- 담당고객 목록 -->
+   <select id="getTotal"  parameterType="hashMap" resultType="int">
+   SELECT count(*)
+      FROM CHARGE_CUSTOMER A
+      FULL OUTER JOIN 
+         CUSTOMER B 
+      ON A.CSTMR_CD = B.CSTMR_CD
+      FULL OUTER JOIN 
+         LEGAL_PERSON C   
+      ON B.CSTMR_CD = C.CPR_CSTMR_CD
+      WHERE 
+         A.CSTBRKR_CD = #{cstbrkrCd}
+          <if test="keyword!=null and keyword!=''">
+            <if test="searchList==''">
+         <!-- 전체검색 -->
+            AND (
+                A.CSTMR_CD LIKE '%' || #{keyword} || '%'
+                OR B.ENTRPRS_NM LIKE '%' || #{keyword} || '%'
+                OR B.ECTMRK LIKE '%' || #{keyword} || '%'
+                OR B.BIZRNO LIKE '%' || #{keyword} || '%'
+                OR C.CPR_NO LIKE '%' || #{keyword} || '%'
+            )
+            </if>
+         <!-- 검색어 설정 후 검색 -->
+            <if test="searchList!=''">
+            AND   ${searchList} LIKE '%' || #{keyword} || '%'
+            </if>
+         </if>
+         <if test="scaleSe!=null and scaleSe!=''">
+         AND B.SCALE_SE LIKE '%' || #{scaleSe} || '%'
+         </if>
+         <if test="mfrcRealmSe!=null and mfrcRealmSe!=''">
+         AND B.MFRC_REALM_SE LIKE '%' || #{mfrcRealmSe} || '%'
+         </if>
+         <if test="bsnAt!=null and bsnAt!=''">
+         AND B.BSN_AT LIKE '%' || #{bsnAt} || '%'
+         </if>
+         <if test="crmnlHist!=null and crmnlHist!=''">
+         AND B.CRMNL_HIST LIKE '%' || #{crmnlHist} || '%'
+         </if>
+         <if test="taxNpymHist!=null and taxNpymHist!=''">
+         AND B.TAX_NPYM_HIST LIKE '%' || #{taxNpymHist} || '%'
+         </if>
+         <if test="processSttus!=null and processSttus!=''">
+         AND B.PROCESS_STTUS LIKE '%' || #{processSttus} || '%'
+         </if>
+   </select>
+   <select id="chargeCustomerList" resultType="chargeCustomerVO">
+      WITH T AS(
+      SELECT 
+      ROW_NUMBER() OVER(ORDER BY A.CSTMR_CD DESC) RNUM,
+         A.CSTMR_CD, 
+         A.CSTBRKR_CD,
+         B.ENTRPRS_NM, 
+         B.REPRSNT_ADRES, 
+         B.REPRSNT_DETAIL_ADRES, 
+         B.REPRSNT_TELNO, 
+         B.REPRSNT_EMAIL,
+         B.CHARGER, 
+         B.ECTMRK, 
+         B.MFRC_REALM_SE, 
+         B.BIZRNO, 
+         B.SCALE_SE, 
+         B.BSN_AT, 
+         B.CRMNL_HIST, 
+         B.TAX_NPYM_HIST, 
+         B.PROCESS_STTUS,
+         C.CPR_NO 
+      FROM CHARGE_CUSTOMER A
+      FULL OUTER JOIN 
+         CUSTOMER B 
+      ON A.CSTMR_CD = B.CSTMR_CD
+      FULL OUTER JOIN 
+         LEGAL_PERSON C   
+      ON B.CSTMR_CD = C.CPR_CSTMR_CD
+      WHERE 
+         A.CSTBRKR_CD = #{cstbrkrCd}
+         <if test="keyword!=null and keyword!=''">
+            <if test="searchList==''">
+         <!-- 전체검색 -->
+            AND (
+                A.CSTMR_CD LIKE '%' || #{keyword} || '%'
+                OR B.ENTRPRS_NM LIKE '%' || #{keyword} || '%'
+                OR B.ECTMRK LIKE '%' || #{keyword} || '%'
+                OR B.BIZRNO LIKE '%' || #{keyword} || '%'
+                OR C.CPR_NO LIKE '%' || #{keyword} || '%'
+            )
+            </if>
+         <!-- 검색어 설정 후 검색 -->
+            <if test="searchList!=''">
+            AND   ${searchList} LIKE '%' || #{keyword} || '%'
+            </if>
+         </if>
+         <if test="scaleSe!=null and scaleSe!=''">
+         AND B.SCALE_SE LIKE '%' || #{scaleSe} || '%'
+         </if>
+         <if test="mfrcRealmSe!=null and mfrcRealmSe!=''">
+         AND B.MFRC_REALM_SE LIKE '%' || #{mfrcRealmSe} || '%'
+         </if>
+         <if test="bsnAt!=null and bsnAt!=''">
+         AND B.BSN_AT LIKE '%' || #{bsnAt} || '%'
+         </if>
+         <if test="crmnlHist!=null and crmnlHist!=''">
+         AND B.CRMNL_HIST LIKE '%' || #{crmnlHist} || '%'
+         </if>
+         <if test="taxNpymHist!=null and taxNpymHist!=''">
+         AND B.TAX_NPYM_HIST LIKE '%' || #{taxNpymHist} || '%'
+         </if>
+         <if test="processSttus!=null and processSttus!=''">
+         AND B.PROCESS_STTUS LIKE '%' || #{processSttus} || '%'
+         </if>
+         )
+      SELECT T.* FROM T
+      WHERE  
+         T.RNUM BETWEEN (#{currentPage}*10) - (10 - 1) AND (#{currentPage}*10)
+   </select>
+   
+   <!-- 담당고객 상세 -->
+   <select id="chargeCustomerDetail" resultType="chargeCustomerVO">   
+      SELECT 
+         B.CSTMR_CD, 
+         B.ENTRPRS_NM, 
+         B.REPRSNT_ADRES, 
+         B.REPRSNT_DETAIL_ADRES, 
+         B.REPRSNT_TELNO, 
+         B.REPRSNT_EMAIL,
+         B.CHARGER, 
+         B.ECTMRK, 
+         B.MFRC_REALM_SE, 
+         B.BIZRNO, 
+         C.CPR_NO, 
+         B.SCALE_SE, 
+         B.BSN_AT, 
+         B.CRMNL_HIST, 
+         B.TAX_NPYM_HIST, 
+         B.PROCESS_STTUS 
+      FROM CHARGE_CUSTOMER A
+      FULL OUTER JOIN 
+         CUSTOMER B 
+      ON A.CSTMR_CD = B.CSTMR_CD
+      FULL OUTER JOIN 
+         LEGAL_PERSON C   
+      ON B.CSTMR_CD = C.CPR_CSTMR_CD
+      WHERE 
+         B.CSTMR_CD = #{cstmrCd}
+   </select>
+   
+
+   <!-- 법인 담당고객 등록 -->
+   <insert id="legalChargeCustomerInsert" parameterType="chargeCustomerVO">
+      INSERT ALL 
+      INTO CUSTOMER (
+         CSTMR_CD,
+         ENTRPRS_NM,
+         REPRSNT_ADRES, 
+         REPRSNT_DETAIL_ADRES, 
+         REPRSNT_TELNO, 
+         REPRSNT_EMAIL, 
+         ECTMRK, 
+         MFRC_REALM_SE, 
+         BIZRNO, 
+         BSN_AT, 
+         CRMNL_HIST, 
+         TAX_NPYM_HIST, 
+         PROCESS_STTUS, 
+         CHARGER,
+         SCALE_SE) 
+      VALUES (
+         'CSTM' || TO_CHAR(CSTM01001.NEXTVAL, 'FM00000'), 
+         #{entrprsNm}, 
+         #{reprsntAdres}, 
+         #{reprsntDetailAdres}, 
+         #{reprsntTelno}, 
+         #{reprsntEmail}, 
+         #{ectmrk}, 
+         #{mfrcRealmSe}, 
+         #{bizrno}, 
+         #{bsnAt}, 
+         #{crmnlHist}, 
+         #{taxNpymHist}, 
+         'CPS1', 
+         #{charger},
+         #{scaleSe})
+      INTO LEGAL_PERSON (
+         CPR_CSTMR_CD, 
+         CPR_NO) 
+      VALUES (
+         'CSTM' || TO_CHAR(CSTM01001.CURRVAL, 'FM00000'), 
+         #{cprNo})
+      INTO CHARGE_CUSTOMER (
+         CSTMR_CD, 
+         CSTBRKR_CD) 
+      VALUES (
+         'CSTM' || TO_CHAR(CSTM01001.CURRVAL, 'FM00000'), 
+         #{cstbrkrCd})
+      SELECT * FROM dual
+   </insert>
+
+   <!-- 개인 담당고객 등록 -->
+   <insert id="indivChargeCustomerInsert" parameterType="chargeCustomerVO">
+      INSERT ALL 
+      INTO CUSTOMER (
+         CSTMR_CD, 
+         ENTRPRS_NM, 
+         REPRSNT_ADRES, 
+         REPRSNT_DETAIL_ADRES, 
+         REPRSNT_TELNO, 
+         REPRSNT_EMAIL, 
+         ECTMRK, 
+         MFRC_REALM_SE, 
+         BIZRNO, 
+         BSN_AT, 
+         CRMNL_HIST, 
+         TAX_NPYM_HIST, 
+         PROCESS_STTUS, 
+         CHARGER,
+         SCALE_SE) 
+      VALUES (
+         'CSTM' || TO_CHAR(CSTM01001.NEXTVAL, 'FM00000'), 
+         #{entrprsNm}, 
+         #{reprsntAdres}, 
+         #{reprsntDetailAdres}, 
+         #{reprsntTelno}, 
+         #{reprsntEmail}, 
+         #{ectmrk}, 
+         #{mfrcRealmSe}, 
+         #{bizrno}, 
+         #{bsnAt}, 
+         #{crmnlHist}, 
+         #{taxNpymHist}, 
+         'CPS1',
+         #{charger},
+         #{scaleSe})
+      INTO INDIVIDUAL_PERSON (
+         INDVDL_BSNM_CSTMR_CD) 
+      VALUES (
+         'CSTM' || TO_CHAR(CSTM01001.CURRVAL, 'FM00000'))
+      INTO CHARGE_CUSTOMER (
+         CSTMR_CD, 
+         CSTBRKR_CD) 
+      VALUES (
+         'CSTM' || TO_CHAR(CSTM01001.CURRVAL, 'FM00000'), 
+         #{cstbrkrCd})
+      SELECT * FROM dual
+   </insert>
+   
+   <!-- 법인고객 수정 -->
+   <update id="legalChargeCustomerUpdate" parameterType="chargeCustomerVO">
+       UPDATE CUSTOMER 
+       SET 
+           ENTRPRS_NM = #{entrprsNm}, 
+           REPRSNT_ADRES = #{reprsntAdres}, 
+           REPRSNT_DETAIL_ADRES = #{reprsntDetailAdres}, 
+           REPRSNT_TELNO = #{reprsntTelno}, 
+           REPRSNT_EMAIL = #{reprsntEmail}, 
+           ECTMRK = #{ectmrk}, 
+           MFRC_REALM_SE = #{mfrcRealmSe}, 
+           BIZRNO = #{bizrno}, 
+           BSN_AT = #{bsnAt}, 
+           CRMNL_HIST = #{crmnlHist}, 
+           TAX_NPYM_HIST = #{taxNpymHist}, 
+           PROCESS_STTUS = 'CPS1', 
+           CHARGER = #{charger}, 
+           SCALE_SE = #{scaleSe} 
+       WHERE CSTMR_CD = #{cstmrCd}
+   </update>
+   <update id="legalPersonUpdate" parameterType="chargeCustomerVO">
+       UPDATE LEGAL_PERSON 
+       SET 
+           CPR_NO = #{cprNo} 
+       WHERE CPR_CSTMR_CD = #{cstmrCd}
+   </update>
+
+
+   <!-- 고객 삭제 -->
+   <delete id="chargeCustomerDelete" parameterType="chargeCustomerVO">
+      DELETE FROM CUSTOMER
+      WHERE CSTMR_CD = #{cstmrCd}
+   </delete>
+
+   <!-- 통관 테이블에서 고객 코드 체크 -->
+   <select id="checkCstmrCd" resultType="int" parameterType="string">
+    SELECT COUNT(CSTMR_CD)
+    FROM ENTRY
+    WHERE CSTMR_CD = #{cstmrCd} 
+   </select>
+
+   <!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+   <!-- 의뢰 목록 -->
+   <select id="presentnPapersList" resultType="presentnPapersVO">
+      SELECT
+         DISTINCT A.PRESENTN_PAPERS_NO,
+         A.PAPERS_PRESENTN_DE,
+         C.ENTRPRS_NM,
+         C.BIZRNO,
+         C.BSN_AT,
+         C.CRMNL_HIST,
+         C.TAX_NPYM_HIST, 
+         C.PROCESS_STTUS
+      FROM PRESENTN_PAPERS A
+      JOIN PAPERS B
+      ON A.PAPERS_IEM_CD = B.PAPERS_IEM_CD
+      JOIN CUSTOMER C
+      ON A.CSTMR_CD = C.CSTMR_CD
+      ORDER BY A.PAPERS_PRESENTN_DE DESC
+   </select>
+   
+   <!-- 의뢰 목록 페이지 검색 조건을 통해 불러오는 메서드 -->
+   <select id="presentnPapersConditionSearchList" parameterType="hashMap" resultType="presentnPapersVO">
+      SELECT   
+         DISTINCT A.PRESENTN_PAPERS_NO,
+         A.PAPERS_PRESENTN_DE,
+         C.ENTRPRS_NM,
+         C.BIZRNO,
+         C.BSN_AT,
+         C.CRMNL_HIST,
+         C.TAX_NPYM_HIST, 
+         C.PROCESS_STTUS
+    FROM PRESENTN_PAPERS A
+    JOIN PAPERS B
+    ON A.PAPERS_IEM_CD = B.PAPERS_IEM_CD
+    JOIN CUSTOMER C
+    ON A.CSTMR_CD = C.CSTMR_CD
+   
+   WHERE (A.PRESENTN_PAPERS_NO, A.PAPERS_PRESENTN_DE) 
+   IN (
+   SELECT A.PRESENTN_PAPERS_NO, MAX(A.PAPERS_PRESENTN_DE) AS MAX_PAPERS_PRESENTN_DE
+   FROM PRESENTN_PAPERS A
+   GROUP BY A.PRESENTN_PAPERS_NO
+   )
+   <if test="startDateS != '' and endDateS != '' and startDateS != null and endDateS != null">
+      AND A.PAPERS_PRESENTN_DE BETWEEN #{startDateS} AND #{endDateS}
+   </if>
+    <if test="bsnAt != '' and bsnAt != null">
+      AND C.BSN_AT = #{bsnAt}
+   </if>
+    <if test="crmnlHist != '' and crmnlHist != null">
+      AND C.CRMNL_HIST = #{crmnlHist}
+   </if>
+    <if test="taxNpymHist != '' and taxNpymHist != null">
+      AND C.TAX_NPYM_HIST = #{taxNpymHist}
+   </if>
+   <if test="processSttus != null and processSttus != ''">
+      AND C.PROCESS_STTUS = #{processSttus}
+   </if>
+   <if test="searchText != null and searchText != ''">
+      AND (
+         A.PRESENTN_PAPERS_NO LIKE '%' || #{searchText} || '%'
+         OR C.ENTRPRS_NM LIKE '%' || #{searchText} || '%'
+         OR C.BIZRNO LIKE '%' || #{searchText} || '%'
+      )
+   </if>
+     ORDER BY A.PAPERS_PRESENTN_DE DESC                        
+   </select>
+   
+   
+   <resultMap type="customerVO" id="customerMap">
+      <result property="cstmrCd" column="CSTMR_CD"/>
+      <result property="entrprsNm" column="ENTRPRS_NM"/>
+      <result property="scaleSe" column="SCALE_SE"/>
+         <result property="charger" column="CHARGER"/>
+      <result property="reprsntAdres" column="REPRSNT_ADRES"/>
+      <result property="reprsntTelno" column="REPRSNT_TELNO"/>
+      <result property="reprsntEmail" column="REPRSNT_EMAIL"/>
+      <result property="taxNpymHist" column="TAX_NPYM_HIST"/>
+      <result property="crmnlHist" column="CRMNL_HIST"/>
+      <result property="bsnAt" column="BSN_AT"/>
+      <result property="processSttus" column="PROCESS_STTUS"/>
+      <collection property="presentnPapersVOList" resultMap="presentnPapersMap"></collection>
+   </resultMap>
+   
+   <resultMap type="presentnPapersVO" id="presentnPapersMap">
+         <result property="presentnPapersNo" column="PRESENTN_PAPERS_NO"/>
+      <result property="papersPresentnDe" column="PAPERS_PRESENTN_DE"/>
+      <result property="atchmnflNo" column="ATCHMNFL_NO"/>
+      <result property="cstmrCd" column="CSTMR_CD"/>
+      <collection property="attachmentFileVOList" resultMap="attachmentFileMap"></collection>
+   </resultMap>
+   
+   <resultMap type="attachmentFileVO" id="attachmentFileMap">
+         <result property="atchmnflNo" column="ATCHMNFL_NO"/>
+      <result property="atchmnflSn" column="ATCHMNFL_SN"/>
+      <result property="filePth" column="FILE_PTH"/>
+      <result property="fileNm" column="FILE_NM"/>
+      <result property="streFileNm" column="STRE_FILE_NM"/>
+      <result property="fileTy" column="FILE_TY"/>
+      <result property="fileSz" column="FILE_SZ"/>
+      <result property="rgsde" column="RGSDE"/>
+      <result property="etc" column="ETC"/>
+   </resultMap>
+   
+   <!-- 다운로드 -->
+   <select id="getFileName" resultType="attachmentFileVO" parameterType="attachmentFileVO">
+         SELECT
+            ATCHMNFL_NO, 
+            ATCHMNFL_SN, 
+            FILE_PTH, 
+            FILE_NM, 
+            STRE_FILE_NM, 
+            FILE_TY, 
+            FILE_SZ, 
+            RGSDE, 
+            ETC
+         FROM
+            ATTACHMENT_FILE
+         WHERE
+            ATCHMNFL_NO = #{atchmnflNo} AND ATCHMNFL_SN = #{atchmnflSn}
+   </select>
+   
+   
+   <!-- 의뢰 상세 정보 -->
+   <select id="presentnPapersDetail" resultMap="customerMap">
+     SELECT C.CSTMR_CD,
+            C.ENTRPRS_NM,
+            C.SCALE_SE,
+            C.CHARGER,
+            C.REPRSNT_ADRES,
+            C.REPRSNT_DETAIL_ADRES,
+            C.REPRSNT_TELNO,
+            C.REPRSNT_EMAIL,
+            C.TAX_NPYM_HIST,
+            C.CRMNL_HIST,
+            C.BSN_AT,
+            C.PROCESS_STTUS,
+            A.PRESENTN_PAPERS_NO,
+            A.PAPERS_PRESENTN_DE,
+            A.ATCHMNFL_NO,
+            B.ATCHMNFL_SN, B.FILE_PTH, B.FILE_NM, B.STRE_FILE_NM, B.FILE_TY, B.FILE_SZ, B.RGSDE,
+            (SELECT C.PAPERS_SE FROM PAPERS C WHERE C.PAPERS_IEM_CD = B.ETC) ETC
+      FROM CUSTOMER C INNER JOIN PRESENTN_PAPERS A ON(C.CSTMR_CD = A.CSTMR_CD)
+                  LEFT OUTER JOIN ATTACHMENT_FILE B ON(A.ATCHMNFL_NO = B.ATCHMNFL_NO)
+      WHERE A.PRESENTN_PAPERS_NO = #{presentnPapersNo}
+   </select>
+
+   <!-- 고객 검사 요청 -->   
+   <update id="customerRequest" parameterType="customerVO">
+      UPDATE CUSTOMER
+      SET
+      PROCESS_STTUS = 'CPS2'
+      WHERE 
+      PROCESS_STTUS = 'CPS1' 
+      AND
+      CSTMR_CD = #{cstmrCd}
+   </update>
+
+	<!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<!-- 고객검사 승인 된 목록만 가져오는 메서드 Select -->
+	<select id="entryApplyListSelect" parameterType="String"
+		resultType="chargeCustomerVO">
+		SELECT
+		A.PRESENTN_PAPERS_NO,
+		A.CSTMR_CD,
+		A.PAPERS_PRESENTN_DE,
+		A.ATCHMNFL_NO,
+		A.PAPERS_IEM_CD,
+		A.PRE_PRO_STTUS,
+		A.ENTR_MANAGE_NO,
+		B.CSTMR_CD,
+		B.CSTBRKR_CD,
+		C.CSTMR_CD,
+		C.ENTRPRS_NM,
+		C.BIZRNO,
+		C.ECTMRK,
+		C.MFRC_REALM_SE,
+		C.BSN_AT,
+		C.CRMNL_HIST,
+		C.TAX_NPYM_HIST,
+		C.PROCESS_STTUS,
+		C.REPRSNT_ADRES,
+		C.REPRSNT_TELNO,
+		C.REPRSNT_EMAIL,
+		C.CHARGER,
+		C.SCALE_SE,
+		C.PROCESS_DE,
+		D.USER_NM,
+		E.CPR_NO
+		FROM PRESENTN_PAPERS A
+		JOIN CHARGE_CUSTOMER B ON A.CSTMR_CD =
+		B.CSTMR_CD
+		JOIN CUSTOMER C ON A.CSTMR_CD = C.CSTMR_CD
+		JOIN USERR D ON
+		B.CSTBRKR_CD = D.USER_CD
+		JOIN LEGAL_PERSON E ON A.CSTMR_CD =
+		E.CPR_CSTMR_CD
+		WHERE C.PROCESS_STTUS = 'CPS3'
+		AND B.CSTBRKR_CD =
+		#{cstbrkrCd}
+		ORDER BY C.PROCESS_DE DESC
+	</select>
+
+	<!-- 고객검사 승인 된 목록 조건 검색 메서드 Select -->
+	<select id="entryApplyListSelectConditionSearch"
+		parameterType="hashMap" resultType="chargeCustomerVO">
+		SELECT
+		A.PRESENTN_PAPERS_NO,
+		A.CSTMR_CD,
+		A.PAPERS_PRESENTN_DE,
+		A.ATCHMNFL_NO,
+		A.PAPERS_IEM_CD,
+		A.PRE_PRO_STTUS,
+		A.ENTR_MANAGE_NO,
+		B.CSTMR_CD,
+		B.CSTBRKR_CD,
+		C.CSTMR_CD,
+		C.ENTRPRS_NM,
+		C.BIZRNO,
+		C.ECTMRK,
+		C.MFRC_REALM_SE,
+		C.BSN_AT,
+		C.CRMNL_HIST,
+		C.TAX_NPYM_HIST,
+		C.PROCESS_STTUS,
+		C.REPRSNT_ADRES,
+		C.REPRSNT_TELNO,
+		C.REPRSNT_EMAIL,
+		C.CHARGER,
+		C.SCALE_SE,
+		C.PROCESS_DE,
+		D.USER_NM,
+		E.CPR_NO
+		FROM PRESENTN_PAPERS A
+		JOIN CHARGE_CUSTOMER B ON A.CSTMR_CD =
+		B.CSTMR_CD
+		JOIN CUSTOMER C ON A.CSTMR_CD = C.CSTMR_CD
+		JOIN USERR D ON
+		B.CSTBRKR_CD = D.USER_CD
+		JOIN LEGAL_PERSON E ON A.CSTMR_CD =
+		E.CPR_CSTMR_CD
+		WHERE C.PROCESS_STTUS = 'CPS3' AND B.CSTBRKR_CD =
+		'CUST0001'
+		<if test="scaleSe != '' and scaleSe != null">
+			AND C.SCALE_SE = #{scaleSe}
+		</if>
+		<if test="mfrcRealmSe != '' and mfrcRealmSe != null">
+			AND C.MFRC_REALM_SE = #{mfrcRealmSe}
+		</if>
+		<if
+			test="startDateS != '' and endDateS != '' and startDateS != null and endDateS != null">
+			AND C.PROCESS_DE BETWEEN #{startDateS} AND #{endDateS}
+		</if>
+		<if test="preProSttus != '' and preProSttus != null">
+			AND A.PRE_PRO_STTUS = #{preProSttus}
+		</if>
+		<if test="searchText != null and searchText != ''">
+			AND (
+			C.ENTRPRS_NM LIKE '%' || #{searchText} || '%'
+			OR C.BIZRNO LIKE '%' || #{searchText} || '%'
+			OR C.CHARGER LIKE '%' || #{searchText} || '%'
+			OR C.REPRSNT_TELNO LIKE '%' || #{searchText} || '%'
+			OR C.REPRSNT_EMAIL LIKE '%' || #{searchText} || '%'
+			OR C.ECTMRK LIKE '%' || #{searchText} || '%'
+			OR E.CPR_NO LIKE '%' || #{searchText} || '%'
+			)
+		</if>
+		ORDER BY C.PROCESS_DE DESC
+	</select>
+
+	<!-- 고객검사 승인된 목록에서 진행버튼을 클릭했을 때, 임시저장 된 값을 가져오는 메서드 시작 -->
+	<select id="getEntryManageNo" parameterType="String"
+		resultType="String">
+		SELECT ENTR_MANAGE_NO FROM PRESENTN_PAPERS WHERE
+		PRESENTN_PAPERS_NO = #{presentnPapersNo}
+	</select>
+
+	<select id="getMiniEntryInfo" parameterType="String"
+		resultType="String">
+		SELECT ENTR_MANAGE_NO FROM ENTRY WHERE ENTR_MANAGE_NO =
+		#{entrManageNo}
+	</select>
+
+	<select id="searchEntryThing" parameterType="String"
+		resultType="String">
+		SELECT *
+		FROM ENTRY_THING
+		WHERE
+		ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+
+	<select id="progressShipOperationContainer"
+		parameterType="String" resultType="shipOperateContainerVO">
+		SELECT *
+		FROM SHIP_OPERATE_CONTAINER
+		WHERE
+		ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+
+	<select id="progressEntryInfo" parameterType="hashMap"
+		resultType="entryVO">
+		SELECT *
+		FROM ENTRY
+		WHERE
+		ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+
+	<select id="progressContainerInfo" parameterType="String">
+		SELECT *
+		FROM CONTAINER
+		WHERE
+		CNTANR_INNB = #{cntanrInnb}
+	</select>
+	<!-- 고객검사 승인된 목록에서 진행버튼을 클릭했을 때, 임시저장 된 값을 가져오는 메서드 종료 -->
+
+	<!-- 수출입 신고 통관 페이지 통관테이블에 삽입 시작 -->
+	<insert id="insertEntry" parameterType="entryVO">
+		INSERT INTO ENTRY(
+		ENTR_MANAGE_NO,
+		CSTBRKR_CD,
+		CSTMR_CD,
+		CLIENT,
+		NOTIFY_INFO,
+		ENTR_SE,
+		EXPTER_CMPNM,
+		EXPTER_ADRES,
+		EXPTER_TELNO,
+		EXPTER_CHARGER,
+		IMPR_CMPNM,
+		IMPR_ADRES,
+		IMPR_TELNO,
+		IMPR_CHARGER,
+		MANCTM_KWA,
+		MANCTM_KWA_CHARGER,
+		TRNSPRT_STLE,
+		WAYBIL_NO,
+		START_PRT,
+		ARVL_PRT,
+		SHIP_START_DE,
+		SHIP_END_DE,
+		SHIP_NM,
+		COUDES,
+		STTEMNT_DE)
+		VALUES( 'ENTR' || TO_CHAR(ENTR01001.NEXTVAL, 'FM00000'),
+		#{cstbrkrCd},
+		#{cstmrCd},
+		#{client},
+		#{notifyInfo},
+		#{entrSe},
+		#{expterCmpnm},
+		#{expterAdres},
+		#{expterTelno},
+		#{expterCharger},
+		#{imprCmpnm},
+		#{imprAdres},
+		#{imprTelno},
+		#{imprCharger},
+		#{manctmKwa},
+		#{manctmKwaCharger},
+		#{trnsprtStle},
+		#{waybilNo},
+		#{startPrt},
+		#{arvlPrt},
+		#{shipStartDe},
+		#{shipEndDe},
+		#{shipNm},
+		#{coudes},
+		SYSDATE)
+	</insert>
+
+	<select id="insertAfterSelectEntryNo" resultType="string">
+		SELECT
+		ENTR_MANAGE_NO FROM ENTRY WHERE STTEMNT_DE = SYSDATE
+	</select>
+
+	<insert id="shipOperationContainer" parameterType="hashMap">
+		INSERT INTO
+		SHIP_OPERATE_CONTAINER
+		(
+		SHIP_DIARY_CD
+		, IMO_NO
+		, CNTANR_INNB
+		, ENTR_MANAGE_NO
+		, APPN_DE
+		)
+		VALUES
+		(
+		#{shipDiaryCd}
+		, #{imoNo}
+		, #{cntanrInnb}
+		, #{entrManageNo}
+		, SYSDATE
+		)
+	</insert>
+
+	<update id="updatePresentPapers" parameterType="string">
+		UPDATE
+		PRESENTN_PAPERS
+		SET PRE_PRO_STTUS = 'PPS2',
+		ENTR_MANAGE_NO = #{entrManageNo}
+		WHERE PRESENTN_PAPERS_NO = #{presentnPapersNo} AND
+		PRE_PRO_STTUS = 'PPS1'
+	</update>
+
+	<!-- 주력상품 리스트 검색 -->
+	<select id="goodsSearch" parameterType="String"
+		resultType="goodsVO">
+		SELECT
+		GOODS_NO,
+		GOODS_NM,
+		HS_CD,
+		GOODS_CL,
+		GOODS_TAXRT,
+		APPLC_BEGIN_DE,
+		APPLC_END_DE
+		FROM GOODS
+		WHERE GOODS_NM LIKE '%' || #{searchText} || '%'
+		ORDER BY
+		GOODS_NO ASC
+	</select>
+
+	<resultMap type="customsBrokerVO" id="cstbrkrMap">
+		<result property="cstbrkrCd" column="CSTBRKR_CD" />
+		<result property="qualfAcqsDe" column="QUALF_ACQS_DE" />
+		<result property="lastAcdmcr" column="LAST_ACDMCR" />
+		<result property="confmAt" column="CONFM_AT" />
+		<result property="qualfNo" column="QUALF_NO" />
+		<result property="profileFile" column="PROFILE_FILE" />
+	</resultMap>
+
+	<resultMap type="userVO" id="userVO">
+		<result property="userCd" column="USER_CD" />
+		<result property="password" column="PASSWORD" />
+		<result property="userNm" column="USER_NM" />
+		<result property="clsf" column="CLSF" />
+		<result property="ihidnum" column="IHIDNUM" />
+		<result property="encpn" column="ENCPN" />
+		<result property="emailAdres" column="EMAIL_ADRES" />
+		<result property="telno" column="TELNO" />
+		<result property="adres" column="ADRES" />
+		<result property="userSe" column="USER_SE" />
+		<collection property="customsBrokerVO"
+			resultMap="cstbrkrMap"></collection>
+	</resultMap>
+
+	<!-- 통관신청 관세사 이름 불러오기 -->
+	<select id="selectCstbkNm" parameterType="userVO"
+		resultMap="userVO">
+		SELECT A.USER_NM
+		FROM USERR A
+		JOIN CUSTOMS_BROKER B ON
+		A.USER_CD = B.CSTBRKR_CD
+		WHERE A.USER_CD = #{cstbrkrCd}
+	</select>
+
+	<!-- 통관신청 수입자 코드 불러와서 수출자 정보 보내주기 -->
+	<select id="entryImportInfo" parameterType="customerVO"
+		resultType="customerVO">
+		SELECT CSTMR_CD, ENTRPRS_NM, BIZRNO, ECTMRK, MFRC_REALM_SE,
+		BSN_AT, CRMNL_HIST, TAX_NPYM_HIST, PROCESS_STTUS, REPRSNT_ADRES,
+		REPRSNT_TELNO, REPRSNT_EMAIL, CHARGER
+		FROM CUSTOMER
+		WHERE CSTMR_CD =
+		#{cstmrCd}
+	</select>
+
+	<!-- 통관신청 수출자 코드 불러와서 수출자 정보 보내주기 -->
+	<select id="entryExportInfo" parameterType="customerVO"
+		resultType="customerVO">
+		SELECT CSTMR_CD, ENTRPRS_NM, BIZRNO, ECTMRK, MFRC_REALM_SE,
+		BSN_AT, CRMNL_HIST, TAX_NPYM_HIST, PROCESS_STTUS, REPRSNT_ADRES,
+		REPRSNT_TELNO, REPRSNT_EMAIL, CHARGER
+		FROM CUSTOMER
+		WHERE CSTMR_CD =
+		#{cstmrCd}
+	</select>
+
+	<!-- 통관관리번호 및 고객번호 요청 -->
+	<select id="selectEntryNo" resultType="entryVO">
+		SELECT ENTR_MANAGE_NO
+		FROM
+		entry
+		WHERE STTEMNT_DE = (SELECT MAX(STTEMNT_DE) FROM entry)
+	</select>
+
+	<!-- serviceImpl - insertEntryThings 시작 -->
+	<insert id="insertEntryThings" parameterType="entryThingVO">
+		INSERT INTO
+		ENTRY_THING(
+		ENTR_MANAGE_NO,
+		GOODS_NO,
+		CSTMR_CD,
+		THING_TY,
+		QY, UNTPC,
+		AMOUNT,
+		TOT_AMOUNT,
+		NETWGHT,
+		TOT_WT,
+		BAGG_TNPAKG,
+		THING_NM,
+		DELNG_PRDNM)
+		VALUES(
+		#{entrManageNo},
+		#{goodsNo},
+		#{cstmrCd},
+		#{thingTy},
+		#{qy},
+		#{untpc},
+		#{amount},
+		#{totAmount},
+		#{netwght},
+		#{totWt},
+		#{baggTnpakg},
+		#{thingNm},
+		#{delngPrdnm})
+	</insert>
+
+	<insert id="entryPaperInsert" parameterType="String">
+		INSERT INTO
+		ENTRY_PAPERS(ENTR_MANAGE_NO)
+		VALUES(#{entryPapersPk})
+	</insert>
+
+	<insert id="generalThingInsert" parameterType="generalThingVO">
+		INSERT INTO
+		GENERAL_THING(ENTR_MANAGE_NO, GOODS_NO, CSTMR_CD)
+		VALUES(#{entrManageNo},#{goodsNo},#{cstmrCd})
+	</insert>
+
+	<insert id="animalAndPlantsThingInsert">
+		INSERT INTO ANIMALS_AND_PLANTS_THING(ENTR_MANAGE_NO,
+		GOODS_NO, CSTMR_CD)
+		VALUES(#{entrManageNo},#{goodsNo},#{cstmrCd})
+	</insert>
+
+	<select id="searchGoodsTaxrt" parameterType="int">
+		SELECT GOODS_TAXRT
+		FROM GOODS
+		WHERE GOODS_NO = #{goodsNo}
+	</select>
+
+	<insert id="entryTaxInsert" parameterType="hashMap">
+		INSERT INTO
+		ENTRY_TAX(ENTR_MANAGE_NO, CT_TAX_IEM_NO, CT_TAX_SE, COMPUT_AMOUNT)
+		VALUES(#{entrManageNo},#{ctTaxIemNo},#{ctTaxSe},#{computAmount})
+	</insert>
+
+	<insert id="calculationTaxInsert" parameterType="hashMap">
+		INSERT INTO
+		CALCULATION_TAX(ENTR_MANAGE_NO, CALC_AMOUNT)
+		VALUES(#{entrManageNo},#{calcAmount})
+	</insert>
+
+	<!-- serviceImpl - insertEntryThings 종료 -->
+
+	<!-- 선박일정 불러오는 메소드 -->
+	<select id="shipDiarySearch" resultType="shipDiaryVO">
+		SELECT
+		SHIP_DIARY_CD
+		, START_PRT
+		, ARVL_PRT
+		, SHIP_START_DE
+		, SHIP_NM
+		, BL_NO
+		, IMO_NO
+		, SHIP_END_DE
+		FROM SHIP_DIARY
+		WHERE 1 = 1
+	</select>
+
+	<!-- 제출서류에 대한 완료 처리 -->
+	<update id="endPresentnPapersVOInsert" parameterType="String">
+		UPDATE
+		PRESENTN_PAPERS
+		SET PRE_PRO_STTUS = 'PPS3'
+		WHERE ENTR_MANAGE_NO =
+		#{entrManageNo}
+	</update>
+
+	<!-- 통관물품 통관신청시 처리상태 insert -->
+	<insert id="entryProcessStatusInsert"
+		parameterType="entryProcessStatusVO">
+		INSERT INTO ENTRY_PROCESS_STATUS (
+		ENTR_MANAGE_NO,
+		USER_CD,
+		PROCESS_STTUS,
+		PROCESS_DE,
+		ENPRSTNO
+		)
+		VALUES (
+		#{entrManageNo},
+		#{userCd},
+		#{processSttus},
+		SYSDATE,
+		(SELECT NVL(MAX(ENPRSTNO), 0) FROM ENTRY_PROCESS_STATUS) + 1
+		)
+	</insert>
+
+	<!-- 통관 목록 페이지 리스트 불러오는 메서드 Select -->
+	<select id="entryProcessList"
+		resultType="com.team4.cbs.cstbrkr.vo.EntryProcessListVO">
+		SELECT
+		A.ENPRSTNO,
+		A.ENTR_MANAGE_NO,
+		A.USER_CD,
+		C.USER_NM,
+		C.TELNO,
+		A.PROCESS_STTUS,
+		A.PROCESS_DE,
+		B.CSTBRKR_CD,
+		B.CSTMR_CD,
+		B.CLIENT,
+		B.ENTR_SE,
+		B.EXPTER_CMPNM,
+		B.EXPTER_ADRES,
+		B.EXPTER_TELNO,
+		B.EXPTER_CHARGER,
+		B.IMPR_CMPNM,
+		B.IMPR_ADRES,
+		B.IMPR_TELNO,
+		B.IMPR_CHARGER,
+		B.MANCTM_KWA,
+		B.MANCTM_KWA_CHARGER,
+		B.QRANT_PLACE,
+		B.TRNSPRT_STLE,
+		B.WAYBIL_NO,
+		B.START_PRT,
+		B.ARVL_PRT,
+		B.SHIP_START_DE,
+		B.SHIP_NM,
+		B.COUDES,
+		B.PBSVNT_CD,
+		B.QRANT_TARGET_AT,
+		B.STTEMNT_DE,
+		B.SHIP_END_DE
+		FROM ENTRY_PROCESS_STATUS A
+		JOIN ENTRY B ON A.ENTR_MANAGE_NO =
+		B.ENTR_MANAGE_NO
+		JOIN USERR C ON C.USER_CD = A.USER_CD
+		WHERE
+		(A.ENTR_MANAGE_NO, A.PROCESS_DE) IN (
+		SELECT A.ENTR_MANAGE_NO, MAX(A.PROCESS_DE) AS MAX_PROCESS_DE
+		FROM ENTRY_PROCESS_STATUS A
+		GROUP BY A.ENTR_MANAGE_NO
+		)
+		ORDER BY A.PROCESS_DE DESC
+	</select>
+
+	<!-- 통관 목록 페이지 검색 조건을 통해 불러오는 메서드 Select -->
+	<select id="entryProcessConditionSearchList"
+		parameterType="hashMap"
+		resultType="com.team4.cbs.cstbrkr.vo.EntryProcessListVO">
+		SELECT
+		A.ENPRSTNO,
+		A.ENTR_MANAGE_NO,
+		A.USER_CD,
+		C.USER_NM,
+		C.TELNO,
+		A.PROCESS_STTUS,
+		A.PROCESS_DE,
+		B.CSTBRKR_CD,
+		B.CSTMR_CD,
+		B.CLIENT,
+		B.ENTR_SE,
+		B.EXPTER_CMPNM,
+		B.EXPTER_ADRES,
+		B.EXPTER_TELNO,
+		B.EXPTER_CHARGER,
+		B.IMPR_CMPNM,
+		B.IMPR_ADRES,
+		B.IMPR_TELNO,
+		B.IMPR_CHARGER,
+		B.MANCTM_KWA,
+		B.MANCTM_KWA_CHARGER,
+		B.QRANT_PLACE,
+		B.TRNSPRT_STLE,
+		B.WAYBIL_NO,
+		B.START_PRT,
+		B.ARVL_PRT,
+		B.SHIP_START_DE,
+		B.SHIP_NM,
+		B.COUDES,
+		B.PBSVNT_CD,
+		B.QRANT_TARGET_AT,
+		B.STTEMNT_DE,
+		B.SHIP_END_DE
+		FROM ENTRY_PROCESS_STATUS A
+		JOIN ENTRY B ON A.ENTR_MANAGE_NO =
+		B.ENTR_MANAGE_NO
+		JOIN USERR C ON C.USER_CD = A.USER_CD
+		WHERE
+		(A.ENTR_MANAGE_NO, A.PROCESS_DE)
+		IN (
+		SELECT A.ENTR_MANAGE_NO, MAX(A.PROCESS_DE) AS MAX_PROCESS_DE
+		FROM
+		ENTRY_PROCESS_STATUS A
+		GROUP BY A.ENTR_MANAGE_NO
+		)
+		<if test="entrSe != '' and entrSe != null">
+			AND B.ENTR_SE = #{entrSe}
+		</if>
+		<if
+			test="startDateS != '' and endDateS != '' and startDateS != null and endDateS != null">
+			AND A.PROCESS_DE BETWEEN #{startDateS} AND #{endDateS}
+		</if>
+		<if test="processSttus != null and processSttus != ''">
+			AND A.PROCESS_STTUS = #{processSttus}
+		</if>
+		<if test="searchText != null and searchText != ''">
+			AND (
+			A.ENTR_MANAGE_NO LIKE '%' || #{searchText} || '%'
+			OR B.CLIENT LIKE '%' || #{searchText} || '%'
+			OR B.EXPTER_TELNO LIKE '%' || #{searchText} || '%'
+			OR B.EXPTER_CHARGER LIKE '%' || #{searchText} || '%'
+			OR B.IMPR_TELNO LIKE '%' || #{searchText} || '%'
+			OR B.IMPR_CHARGER LIKE '%' || #{searchText} || '%'
+			OR C.USER_NM LIKE '%' || #{searchText} || '%'
+			OR C.TELNO LIKE '%' || #{searchText} || '%'
+			)
+		</if>
+		ORDER BY A.PROCESS_DE DESC
+	</select>
+
+	<!-- 통관대행료 계산서 정보 불러오는 메서드 Select 시작 -->
+	<select id="searchCustomerInfo" parameterType="String"
+		resultType="customerVO">
+		SELECT * FROM CUSTOMER
+		WHERE CSTMR_CD IN
+		(
+		SELECT CSTMR_CD
+		FROM ENTRY
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+		)
+	</select>
+
+	<select id="searchEntryTaxInfo" parameterType="String"
+		resultType="entryTaxVO">
+		SELECT COMPUT_AMOUNT
+		FROM ENTRY_TAX
+		WHERE CT_TAX_IEM_NO = 10
+		AND ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+	<!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+
+	<!-- 아이디 정보 찾기 -->
+	<select id="selectId" parameterType="String" resultType="String">
+		SELECT
+		USER_CD
+		FROM USERR
+		WHERE USER_CD = #{id}
+	</select>
+
+	<!-- 비밀번호 확인 -->
+	<select id="getPwd" parameterType="String" resultType="String">
+		SELECT
+		PASSWORD
+		FROM USERR
+		WHERE USER_CD = #{id}
+	</select>
+
+	<resultMap type="userVO" id="cusMap">
+		<result property="userCd" column="USER_CD" />
+		<result property="password" column="PASSWORD" />
+		<result property="userNm" column="USER_NM" />
+		<result property="clsf" column="CLSF" />
+		<result property="ihidnum" column="IHIDNUM" />
+		<result property="encpn" column="ENCPN" />
+		<result property="emailAdres" column="EMAIL_ADRES" />
+		<result property="telno" column="TELNO" />
+		<result property="adres" column="ADRES" />
+		<result property="userSe" column="USER_SE" />
+		<result property="detailAdres" column="DETAIL_ADRES" />
+
+		<association property="customsBrokerVO"
+			resultMap="customsBrokerMap"></association>
+	</resultMap>
+
+	<resultMap type="CustomsBrokerVO" id="customsBrokerMap">
+		<result property="cstbrkrCd" column="CSTBRKR_CD" />
+		<result property="qualfAcqsDe" column="QUALF_ACQS_DE" />
+		<result property="lastAcdmcr" column="LAST_ACDMCR" />
+		<result property="confmAt" column="CONFM_AT" />
+		<result property="qualfNo" column="QUALF_NO" />
+		<result property="profileFile" column="PROFILE_FILE" />
+	</resultMap>
+
+	<!-- 마이페이지 정보 -->
+	<select id="userDet" resultMap="cusMap">
+		SELECT *
+		FROM USERR a
+		FULL OUTER
+		JOIN CUSTOMS_BROKER b
+		ON a.USER_CD = b.CSTBRKR_CD
+		WHERE a.USER_CD = #{id}
+	</select>
+	<!-- 마이페이지 정보수정 -->
+	<update id="perUpd" parameterType="UserVO">
+		UPDATE USERR
+		SET EMAIL_ADRES = #{emailAdres}, TELNO = #{telno}, ADRES = #{adres},
+		DETAIL_ADRES = #{detailAdres}
+		WHERE USER_CD = #{userCd}
+	</update>
+	<!-- 마이페이지 정보수정(비밀번호 포함) -->
+	<update id="perUpd2" parameterType="UserVO">
+		UPDATE USERR
+		SET PASSWORD = #{password}, EMAIL_ADRES = #{emailAdres}, TELNO =
+		#{telno}, ADRES = #{adres}, DETAIL_ADRES = #{detailAdres}
+		WHERE USER_CD = #{userCd}
+	</update>
+
+
+	<update id="profileUpd" parameterType="customsBrokerVO">
+		UPDATE CUSTOMS_BROKER SET PROFILE_FILE = #{profileFile} WHERE CSTBRKR_CD =
+		#{cstbrkrCd}
+	</update>
+
+	<!-- /////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+
+	<select id="ImportExportCertificate" parameterType="String"
+		resultType="com.team4.cbs.cstbrkr.vo.ImportExportCertificateVO">
+		SELECT
+		DISTINCT A.ENTR_MANAGE_NO,
+		B.PAPERS_PRESENTN_DE, A.MANCTM_KWA, A.WAYBIL_NO, C.CNTANR_INNB, A.SHIP_START_DE,
+		A.SHIP_END_DE, D.USER_NM, A.CLIENT, A.IMPR_ADRES, A.IMPR_CMPNM,
+		A.IMPR_TELNO, A.IMPR_CHARGER,
+		R.DRVER_NM, A.EXPTER_CMPNM, A.ARVL_PRT, A.START_PRT, A.SHIP_NM, F.REQUST_PLACE,
+		G.USER_NM AS PB_USER_NM
+		FROM ENTRY A
+		LEFT OUTER JOIN PRESENTN_PAPERS B ON A.ENTR_MANAGE_NO = B.ENTR_MANAGE_NO
+		LEFT OUTER JOIN SHIP_OPERATE_CONTAINER C ON A.ENTR_MANAGE_NO =
+		C.ENTR_MANAGE_NO
+		LEFT OUTER JOIN USERR D ON A.CSTBRKR_CD = D.USER_CD
+		LEFT OUTER JOIN QUARANTINE_REQUEST F ON A.ENTR_MANAGE_NO =
+		F.ENTR_MANAGE_NO
+		LEFT OUTER JOIN USERR G ON A.PBSVNT_CD = G.USER_CD
+		LEFT OUTER JOIN VEHICLES_DIARY Q ON A.ENTR_MANAGE_NO = Q.ENTR_MANAGE_NO
+		AND STODEL_SE = 1
+		LEFT OUTER JOIN IC_CARD W ON Q.IC_CARD_NO = W.IC_CARD_NO
+		LEFT OUTER JOIN VEHICLES_DRIVER R ON W.DRVER_CD = R.DRVER_CD
+		WHERE A.ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+
+	<select id="entryThingData"
+		resultType="com.team4.cbs.cstbrkr.vo.EntryGoodsTaxVO">
+		SELECT
+		DISTINCT A.ENTR_MANAGE_NO, E.QY, E.UNTPC, E.NETWGHT, E.THING_TY, E.AMOUNT,
+		E.TOT_WT, E.BAGG_TNPAKG, E.THING_NM, E.DELNG_PRDNM, E. E.TOT_AMOUNT,
+		B.HS_CD, B.GOODS_CL, B.GOODS_TAXRT
+		FROM ENTRY A
+		LEFT OUTER JOIN ENTRY_THING E ON A.ENTR_MANAGE_NO = E.ENTR_MANAGE_NO
+		LEFT OUTER JOIN GOODS B ON E.GOODS_NO = B.GOODS_NO
+		WHERE A.ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+
+	<select id="entryTaxData"
+		resultType="com.team4.cbs.cstbrkr.vo.EntryTaxVO">
+		SELECT CT_TAX_IEM_NO, COMPUT_AMOUNT
+		FROM ENTRY_TAX
+		WHERE ENTR_MANAGE_NO = #{entrManageNo}
+	</select>
+
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+		<setting name="jdbcTypeForNull" value="VARCHAR"/>
+	</settings>
+
+	<typeAliases>
+	<!-- 공통 Mybatis 시작 //////////////////-->
+		<typeAlias type="com.team4.cbs.admin.vo.BrokerInfoHistoryVO" alias="brokeriInfoHistoryVO"/>	
+		<typeAlias type="com.team4.cbs.admin.vo.PublicServantVO" alias="publicServantVO"/>	
+		<typeAlias type="com.team4.cbs.common.vo.NoticeVO" alias="noticeVO"/>
+		<typeAlias type="com.team4.cbs.common.vo.AttachmentFileVO" alias="attachmentFileVO"/>
+		<typeAlias type="com.team4.cbs.common.vo.CalendarVO" alias="calendarVO"/>
+		<typeAlias type="com.team4.cbs.common.vo.ChargeCustomerVO" alias="chargeCustomerVO"/><!-- 겹침 -->
+		<typeAlias type="com.team4.cbs.common.vo.CustomerVO" alias="customerVO"/>			  <!-- 겹침 -->
+		<typeAlias type="com.team4.cbs.common.vo.CustomsBrokerVO" alias="customsBrokerVO"/> <!-- 겹침 -->
+		<typeAlias type="com.team4.cbs.common.vo.UserAuthVO" alias="userAuthVO"/>	
+		<typeAlias type="com.team4.cbs.common.vo.UserVO" alias="userVO"/>	
+		<typeAlias type="com.team4.cbs.main.vo.ScheduleVO" alias="scheduleVO"/>	
+		<typeAlias type="com.team4.cbs.common.vo.EntryProcessStatusVO" alias="entryProcessStatusVO"/>	
+		
+	<!-- 공통 Mybatis 끝 //////////////////-->
+	
+	<!-- 신고서 Mybatis 시작 ///////////////////////// -->
+		<typeAlias type="com.team4.cbs.main.declaration.vo.TransportDeclarationVO" alias="transportDeclarationVO"/>	
+		<typeAlias type="com.team4.cbs.main.declaration.vo.TransportChitVO" alias="transportChitVO"/>	
+	
+	<!-- 신고서 Mybatis 끝 ///////////////////////// -->
+	
+	<!-- 관세사 Mybatis 시작 //////////////////-->
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.CalculationTaxVO" alias="calculationTaxVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.EntryThingVO" alias="entryThingVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.EntryVO" alias="entryVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.GoodsVO" alias="goodsVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.IndividualPersonVO" alias="individualPersonVO"/>		
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.LegalPersonVO" alias="legalPersonVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.TaxItemVO" alias="taxItemVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.MainGoodsVO" alias="mainGoodsVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.PresentnPapersVO" alias="presentnPapersVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.PapersVO" alias="papersVO"/>
+		<typeAlias type="com.team4.cbs.cstbrkr.vo.EntryTaxVO" alias="entryTaxVO"/>
+		
+	<!-- 관세사 Mybatis 끝 //////////////////-->
+	
+	<!-- 공무원 Mybatis 시작 //////////////////-->
+		<typeAlias type="com.team4.cbs.pbsvnt.admin.vo.ErrorsInDeclarationVO" alias="errorsInDeclarationVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.admin.vo.OneEntryDetailVO" alias="oneEntryDetailVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.admin.vo.ExportLicenseVO" alias="exportLicenseVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.admin.vo.WarehouseChitVO" alias="warehouseChitVO"/>
+		
+		<typeAlias type="com.team4.cbs.pbsvnt.bounded.vo.BoundedChitVO" alias="boundedChitVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.bounded.vo.BoundedReqVO" alias="boundedReqVO"/>
+	 	<typeAlias type="com.team4.cbs.pbsvnt.bounded.vo.BoundedWarehouseVO" alias="boundedWarehouseVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.bounded.vo.UseBoundedWarehouseVO" alias="useBoundedWarehouseVO"/>
+		
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.AnimalAndPlantsThingVO" alias="animalAndPlantsThingVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.GeneralThingVO" alias="generalThingVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.QuarantineChitVO" alias="quarantineChitVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.QuarantineDetailVO" alias="quarantineDetailVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.QuarantineItemVO" alias="quarantineItemVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.QuarantineRequestVO" alias="quarantineRequestVO"/>
+		<typeAlias type="com.team4.cbs.pbsvnt.quar.vo.QuarantineThingVO" alias="quarantineThingVO"/>
+	<!-- 공무원 Mybatis 끝 //////////////////-->
+
+	<!-- 운송 Mybatis 시작 //////////////////-->
+		<typeAlias type="com.team4.cbs.trnsprt.vo.ContainerVO" alias="containerVO"/>
+		<typeAlias type="com.team4.cbs.trnsprt.vo.HistoryVO" alias="historyVO"/>
+		<typeAlias type="com.team4.cbs.trnsprt.vo.IcCardVO" alias="icCardVO"/>
+		<typeAlias type="com.team4.cbs.trnsprt.vo.ShipDiaryVO" alias="shipDiaryVO"/>
+		<typeAlias type="com.team4.cbs.trnsprt.vo.ShipEmployeeVO" alias="shipEmployeeVO"/>
+		<typeAlias type="com.team4.cbs.trnsprt.vo.ShipInfomationVO" alias="shipinformationVO"/>
+		<typeAlias type="com.team4.cbs.trnsprt.vo.TransportationCompanyVO" alias="transportationCompanyVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.TrnsprtCompanyVO" alias="trnsprtCompanyVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.UseContainerVO" alias="userContainerVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.VehiclesChitVO" alias="vehiclesChitVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.VehiclesDiaryVO" alias="vehiclesDiaryVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.VehiclesDriverVO" alias="vehiclesDriverVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.VehiclesInformationVO" alias="vehiclesInformationVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.DiaryShipInfoVO" alias="diaryShipInfoVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.StoreReqVO" alias="storeReqVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.DeliveryReqVO" alias="deliveryReqVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.ShipContainerVO" alias="shipContainerVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.ShipOperateContainerVO" alias="shipOperateContainerVO"/>
+	 	<typeAlias type="com.team4.cbs.trnsprt.vo.ShipDiaryDetailVO" alias="shipDiaryDetailVO"/>
+	<!-- 운송 Mybatis 끝 //////////////////-->
+
+	</typeAliases>
+</configuration>

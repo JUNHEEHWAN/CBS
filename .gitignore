@@ -3,3 +3,4 @@ target/
 *.class
 target/maven-status/
 .idea/
+src/main/webapp/resources/img/로그인UA.gif

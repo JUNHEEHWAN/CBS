@@ -1,25 +1,3 @@
-package com.team4.cbs.exam;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@Controller
-@RequestMapping("/cbs/exam")
-public class ExamController {
-	
-	@GetMapping("/form")
-	public String formExam() {
-		return "exam/formExam";
-	}
-	
-	@GetMapping("/table")
-	public String tableExam() {
-		return "exam/tableExam";
-	}
-	
-	@GetMapping("/table2")
-	public String tableExam2() {
-		return "exam/tableExam2";
-	}
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:af56d27e34f26728756e8090bd6b6ef36821ac540bb2fe4fd16de82b560d417c
+size 552

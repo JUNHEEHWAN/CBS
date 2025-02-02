@@ -1,16 +1,3 @@
-package com.team4.cbs.trnsprt.vo;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Setter
-@Getter
-@ToString
-public class VehiclesChitVO {
-	
-	private String trnsprtChitNo;	// 운송 전표 번호
-	private String entrManageNo;	// 통관 관리 번호
-	private String opratHistInfoCd;	// 운행 이력 정보 코드
-	
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:ec7f73fe183404b32bd42aa5790de567cd3d7b9041c11d85a8435afeaa076361
+size 355

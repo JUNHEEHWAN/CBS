@@ -1,20 +1,3 @@
-package com.team4.cbs.trnsprt.vo;
-
-import java.util.Date;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Setter
-@Getter
-@ToString
-public class ShipOperateContainerVO {
-	
-	private String shipDiaryCd;		// 선박일지코드
-	private int imoNo;				// IMO 번호
-	private String cntanrInnb;		// 컨테이너 고유 번호
-	private String entrManageNo;	// 통관 관리 번호
-	private Date appnDe;			// 지정 일자
-	
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:0911021af890aaa1794a261280802e29a2d37713863e8f32f5bb877f965eb127
+size 461

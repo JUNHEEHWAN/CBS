@@ -1,21 +1,3 @@
-package com.team4.cbs.cstbrkr.vo;
-
-import java.util.Date;
-import java.util.List;
-
-import lombok.Data;
-
-@Data
-public class GoodsVO {
-	private int goodsNo;		//상품 번호
-	private String goodsNm;		//상품 명
-	private String hsCd;		//HScode
-	
-	//GoodsVO : MainGoodsVO = 1 : N
-	private List<MainGoodsVO> mainGoodsVOList;
-	
-	private String goodsCl;		//상품분류
-	private int goodsTaxrt;		//상품세율
-	private Date applcBeginDe;	//적용개시일
-	private Date applcEndDe;	//적용만료일
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:e1d7cff3f381949c7aff5c495d0f1cead48f0bc4c387002f58db20892cd0851e
+size 518

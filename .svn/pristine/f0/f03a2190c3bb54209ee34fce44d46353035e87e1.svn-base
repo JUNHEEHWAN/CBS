@@ -1,13 +1,3 @@
-{
-"cols":[
-{"id":"","label":"Topping","pattern":"","type":"string"},
-{"id":"","label":"Slices","pattern":"","type":"number"}
-],
-"rows":[
-{"c":[{"v":"Mushrooms"},{"v":3}]},
-{"c":[{"v":"Onions"},{"v":1}]},
-{"c":[{"v":"Olives"},{"v":1}]},
-{"c":[{"v":"Zucchini"},{"v":1}]},
-{"c":[{"v":"Pepperoni"},{"v":2}]}
-]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:031cdd339f89b18c8fe55a5458ec7abc699db0492cc7fa66167a6feeefe2d70b
+size 319

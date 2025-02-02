@@ -1,16 +1,3 @@
-package com.team4.cbs.pbsvnt.quar.vo;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Setter
-@Getter
-@ToString
-public class GeneralThingVO {
-	
-	private String entrManageNo;	// 통관 관리 번호
-	private int goodsNo;			// 상품 번호
-	private String cstmrCd;			// 고객 코드
-	
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:1c3cba39a04da21e3ceafa2b7481dc7179354154ee2ab09b565d5e0e2993f856
+size 325

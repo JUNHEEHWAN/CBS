@@ -1,9 +1,3 @@
-package com.team4.cbs.cstbrkr.vo;
-
-import lombok.Data;
-
-@Data
-public class MainGoodsVO {
-	private int goodsNo;
-	private String cstmrCd;
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:0e255908a2e7e90282f47877b123771eaa294d741b2fb4b61c724e84d9e45b99
+size 147

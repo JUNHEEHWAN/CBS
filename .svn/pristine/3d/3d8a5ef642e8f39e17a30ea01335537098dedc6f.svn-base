@@ -1,30 +1,3 @@
-package com.team4.cbs.trnsprt.vo;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Setter
-@Getter
-@ToString
-public class ShipInfomationVO {
-	
-	private int imoNo;
-	private String cmpnyCd;
-	private String shipNm;
-	
-	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-	private Date cbstrDate;
-	private String cbstrDateStr;
-	private String shipNlty;
-	private String clsgn;
-	private int grtg;
-	private int shipLt;
-	private int shipBt;
-	private int shipDp;
-	private int shipNo;
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:88c3124012c71988f681352fc94a937ec8d51bb271076808dc709dde35ba7602
+size 651

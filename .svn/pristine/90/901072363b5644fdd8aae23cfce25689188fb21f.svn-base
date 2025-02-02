@@ -1,11 +1,3 @@
-package com.team4.cbs.pbsvnt.bounded.vo;
-
-import lombok.Data;
-
-@Data
-public class BoundedWarehouseVO {
-	private String entrManageNo;
-	private String bndwasCd;
-	private String bndwasZone;
-	private int bndwasNo;
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:78fd9af2d6b8198089c40c454335b98cf01574d2d35b003b11c63ec2c24c0157
+size 223

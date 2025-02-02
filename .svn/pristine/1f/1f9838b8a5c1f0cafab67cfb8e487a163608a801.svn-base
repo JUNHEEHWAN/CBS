@@ -1,11 +1,3 @@
-package com.team4.cbs.cstbrkr.vo;
-
-import lombok.Data;
-
-@Data
-public class EntryTaxVO {
-	private String entrManageNo;	//통관관리번호
-	private int ctTaxIemNo;			//비용세액항목번호
-	private String ctTaxSe;			//비용세액구분
-	private double computAmount;		//산출금액
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:4ef5d2c886ec233df1c1a2e8bacb3154d27bc52b2343388e986e8b78e958e35c
+size 300

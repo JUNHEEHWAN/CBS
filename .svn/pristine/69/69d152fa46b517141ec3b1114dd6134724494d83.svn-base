@@ -1,33 +1,3 @@
-*.pyc
-*.egg-info
-*.db
-*.db.old
-*.swp
-*.db-journal
-
-.coverage
-.DS_Store
-.installed.cfg
-_gh_pages/*
-
-.idea/*
-.svn/*
-src/website/static/*
-src/website/media/*
-
-bin
-cfcache
-develop-eggs
-dist
-downloads
-eggs
-parts
-tmp
-.sass-cache
-node_modules
-
-src/website/settingslocal.py
-stunnel.log
-
-.ruby-version
-.bundle
+version https://git-lfs.github.com/spec/v1
+oid sha256:f41e4eaa2c82003d227466d1c8b0b620689cd49a7743831383fd9e7a9c8d0421
+size 334

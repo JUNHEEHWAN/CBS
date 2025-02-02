@@ -1,18 +1,3 @@
-package com.team4.cbs.pbsvnt.bounded.mapper;
-
-import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
-
-import com.team4.cbs.pbsvnt.bounded.vo.BoundedReqVO;
-import com.team4.cbs.pbsvnt.bounded.vo.BoundedWarehouseVO;
-import com.team4.cbs.pbsvnt.bounded.vo.UseBoundedWarehouseVO;
-
-@Mapper
-public interface BoundedMapper {
-	public List<BoundedReqVO> getReqList(); 			 				// 입고 요청 목록
-	public int insUseBounded(BoundedReqVO boundedReqVO); 				// 입고 등록 (사용 보세 창고 TABLE INSERT)
-	public List<BoundedWarehouseVO> getZone();				    		// 창고 구역 불러오기
-	public List<UseBoundedWarehouseVO> useBoundedList(String bndwasCd); // 창고 구역 선택 후 목록
-	public List<BoundedWarehouseVO> getNo();							// 창고 번호 불러오기
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:a7437eed70e0c58c3523af18e6aec9d941b7aa007a2f1f5d016eab3213c56457
+size 801

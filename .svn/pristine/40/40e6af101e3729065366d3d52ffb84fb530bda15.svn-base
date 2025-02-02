@@ -1,8 +1,3 @@
-package com.team4.cbs.cstbrkr.vo;
-
-import lombok.Data;
-
-@Data
-public class IndividualPersonVO {
-	private String indvdlBsnmCstmrCd;
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:e871b14eeb23ce47e3b3f212dd7bf04896710dc2962f55060cbdb2c94991dcd2
+size 141

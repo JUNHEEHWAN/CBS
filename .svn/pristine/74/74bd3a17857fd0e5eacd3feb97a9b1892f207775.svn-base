@@ -1,9 +1,3 @@
-package com.team4.cbs.cstbrkr.vo;
-
-import lombok.Data;
-
-@Data
-public class PapersVO {
-	private String papersIemCd;	//서류 항목 코드
-	private String papersSE;	//서류 구분
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:a11bd1c94aa916421ab9d7cb8509a9ea3fbae75539424c1c1fa28c81d4ca2ae8
+size 191

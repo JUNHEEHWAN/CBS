@@ -1,15 +1,3 @@
-package com.team4.cbs.cstbrkr.vo;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Setter
-@Getter
-@ToString
-public class TaxItemVO {
-	
-	private int taxIemNo;
-	private String taxIemNm;
-	
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:2974a95228ee57de46b19eb1853e8bdc896f01745d71fa076313b08c69da92ee
+size 225

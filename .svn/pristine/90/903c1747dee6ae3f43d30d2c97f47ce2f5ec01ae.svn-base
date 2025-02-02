@@ -1,21 +1,3 @@
-package com.team4.cbs.trnsprt.vo;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Setter
-@Getter
-@ToString
-public class VehiclesInformationVO {
-	
-	private String vhcleCd;	// 차량 코드
-	private String vhcleCmpnyCd;	// 차량 회사 코드
-	private String vhcleNo;		// 차량 번호
-	private String mdlNm;		// 모델명
-	private String ldadngVl;	// 부피
-	private String ldadngWt;	// 적재 중량
-	private String ldadngLt;	// 적재함 길이
-	private String ldadngHg;	// 총 높이
-	
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6af6056038a5305fb74e0332ae0196f798f52b3f3eeac23ccf0f702ff3eb1a94
+size 533
